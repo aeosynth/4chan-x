@@ -1754,8 +1754,16 @@ main =
         position: absolute;
         padding: 5px;
       }
+      #watcher > div {
+        padding-right: 5px;
+        padding-left: 5px;
+      }
       #watcher > div.move {
         text-decoration: underline;
+        padding-top: 5px;
+      }
+      #watcher > div:last-child {
+        padding-bottom: 5px;
       }
 
       body.noselect {
