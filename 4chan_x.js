@@ -2231,14 +2231,12 @@
 \
       #watcher {\
         position: absolute;\
+        padding: 5px;\
       }\
       #watcher > div.move {\
         text-decoration: underline;\
-        padding: 5px 5px 0 5px;\
       }\
-      #watcher > div:last-child {\
-        padding: 0 5px 5px 5px;\
-      }\
+\
       body.noselect {\
        -webkit-user-select: none;\
        -khtml-user-select: none;\
