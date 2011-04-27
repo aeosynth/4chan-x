@@ -98,7 +98,7 @@ ui =
     el
   move: (e) ->
     ui.el = el = e.target.parentNode
-    $.addClass d.body, 'noselect'
+    document.body.className = 'noselect'
     #distance from pointer to el edge is constant; calculate it here.
     # XXX opera reports el.offsetLeft / el.offsetTop as 0
     rect = el.getBoundingClientRect()
@@ -130,7 +130,7 @@ ui =
     {id} = el
     localStorage["#{id}Left"] = el.style.left
     localStorage["#{id}Top"]  = el.style.top
-    $.removeClass d.body, 'noselect'
+    document.body.className = ''
 
 #convenience
 d = document
@@ -1752,7 +1752,6 @@ main =
 
       #watcher {
         position: absolute;
-        padding: 5px;
       }
       #watcher > div {
         padding-right: 5px;

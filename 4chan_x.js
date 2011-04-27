@@ -179,7 +179,7 @@
     move: function(e) {
       var el, rect;
       ui.el = el = e.target.parentNode;
-      $.addClass(d.body, 'noselect');
+      document.body.className = 'noselect';
       rect = el.getBoundingClientRect();
       ui.dx = e.clientX - rect.left;
       ui.dy = e.clientY - rect.top;
@@ -218,7 +218,7 @@
       id = el.id;
       localStorage["" + id + "Left"] = el.style.left;
       localStorage["" + id + "Top"] = el.style.top;
-      return $.removeClass(d.body, 'noselect');
+      return document.body.className = '';
     }
   };
   d = document;
@@ -2202,6 +2202,7 @@
         text-align: right;\
       }\
       #qr > form > div, /* ad */\
+      #qr #recaptcha_table td:nth-of-type(3), /* captcha logos */\
       #qr td.rules {\
         display: none;\
       }\
@@ -2231,10 +2232,17 @@
 \
       #watcher {\
         position: absolute;\
-        padding: 5px;\
+      }\
+      #watcher > div {\
+        padding-right: 5px;\
+        padding-left: 5px;\
       }\
       #watcher > div.move {\
         text-decoration: underline;\
+        padding-top: 5px;\
+      }\
+      #watcher > div:last-child {\
+        padding-bottom: 5px;\
       }\
 \
       body.noselect {\
