@@ -978,6 +978,7 @@ threadHiding =
     else
       $.hide thread
       $.hide thread.nextSibling
+      nav.threads = $$ 'div.thread:not([style*="display: none;"])'
 
   show: (thread) ->
     $.remove $ 'div.block', thread

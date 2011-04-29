@@ -1251,7 +1251,8 @@
         return $.addClass(thread, 'stub');
       } else {
         $.hide(thread);
-        return $.hide(thread.nextSibling);
+        $.hide(thread.nextSibling);
+        return nav.threads = $$('div.thread:not([style*="display: none;"])');
       }
     },
     show: function(thread) {
