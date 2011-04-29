@@ -603,7 +603,9 @@ nav =
       rect = thread.getBoundingClientRect()
       {bottom} = rect
       if bottom > 0 #we have not scrolled past
-        if full
+        if _ref[i + 1].style.display is 'none'
+          return [thread, i + 1, rect];
+        else if full
           return [thread, i, rect]
         return thread
     return null

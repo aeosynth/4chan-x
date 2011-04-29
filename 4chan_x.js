@@ -813,7 +813,9 @@
         rect = thread.getBoundingClientRect();
         bottom = rect.bottom;
         if (bottom > 0) {
-          if (full) {
+          if (_ref[i + 1].style.display === 'none') {
+            return [thread, i + 1, rect];
+          } else if (full) {
             return [thread, i, rect];
           }
           return thread;
