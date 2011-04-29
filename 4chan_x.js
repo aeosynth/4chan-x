@@ -796,7 +796,7 @@
       $.bind(next, 'click', nav.next);
       $.append(span, prev, $.tn(' '), next);
       $.append(d.body, span);
-      return nav.threads = $$('div.thread');
+      return nav.threads = $$('div.thread:not([style*="display: none;"])');
     },
     prev: function() {
       return nav.scroll(-1);
@@ -813,9 +813,7 @@
         rect = thread.getBoundingClientRect();
         bottom = rect.bottom;
         if (bottom > 0) {
-          if (_ref[i + 1].style.display === 'none') {
-            return [thread, i + 1, rect];
-          } else if (full) {
+          if (full) {
             return [thread, i, rect];
           }
           return thread;
