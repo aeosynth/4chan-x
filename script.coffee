@@ -588,7 +588,7 @@ nav =
     $.append span, prev, $.tn(' '), next
     $.append d.body, span
 
-    nav.threads = $$ 'div.thread'
+    nav.threads = $$ 'div.thread:not(.stub):not([style*="display: none;"])'
 
   prev: ->
     nav.scroll -1
@@ -975,9 +975,11 @@ threadHiding =
       $.append div, a
       $.append thread, div
       $.addClass thread, 'stub'
+      nav.threads = $$ 'div.thread:not(.stub)'
     else
       $.hide thread
       $.hide thread.nextSibling
+      nav.threads = $$ 'div.thread:not([style*="display: none;"])'
 
   show: (thread) ->
     $.remove $ 'div.block', thread

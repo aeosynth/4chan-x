@@ -796,7 +796,7 @@
       $.bind(next, 'click', nav.next);
       $.append(span, prev, $.tn(' '), next);
       $.append(d.body, span);
-      return nav.threads = $$('div.thread');
+      return nav.threads = $$('div.thread:not(.stub):not([style*="display: none;"])');
     },
     prev: function() {
       return nav.scroll(-1);
@@ -1248,10 +1248,12 @@
         });
         $.append(div, a);
         $.append(thread, div);
-        return $.addClass(thread, 'stub');
+        $.addClass(thread, 'stub');
+        return nav.threads = $$('div.thread:not(.stub)');
       } else {
         $.hide(thread);
-        return $.hide(thread.nextSibling);
+        $.hide(thread.nextSibling);
+        return nav.threads = $$('div.thread:not([style*="display: none;"])');
       }
     },
     show: function(thread) {
