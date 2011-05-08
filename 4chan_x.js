@@ -1688,16 +1688,20 @@
       preview = $('#qp');
       id = target.textContent.replace(">>", '');
       preview.innerHTML = d.getElementById(id).innerHTML;
+      quotePreview.winHeight = d.body.clientHeight;
       $.show(preview);
       $.bind(target, 'mousemove', quotePreview.mousemove);
       return $.bind(target, 'mouseout', quotePreview.mouseout);
     },
     mousemove: function(e) {
-      var clientX, clientY, preview;
+      var bot, clientX, clientY, pHeight, preview, top;
       clientX = e.clientX, clientY = e.clientY;
       preview = $('#qp');
       preview.style.left = clientX + 45;
-      return preview.style.top = clientY - 120;
+      pHeight = preview.clientHeight;
+      top = clientY - 120;
+      bot = top + pHeight;
+      return preview.style.top = quotePreview.winHeight < pHeight || top < 0 ? 0 : bot > quotePreview.winHeight ? quotePreview.winHeight - pHeight : top;
     },
     mouseout: function(e) {
       var preview, target;
@@ -1917,7 +1921,6 @@
         img.src = target.parentNode.href;
         $.show(img);
         imageHover.winHeight = d.body.clientHeight;
-        imageHover.winWidth = d.body.clientWidth;
         $.bind(target, 'mousemove', imageHover.cb.mousemove);
         return $.bind(target, 'mouseout', imageHover.cb.mouseout);
       },

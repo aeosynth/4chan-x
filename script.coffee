@@ -1333,6 +1333,7 @@ quotePreview =
     preview = $ '#qp'
     id = target.textContent.replace ">>", ''
     preview.innerHTML = d.getElementById(id).innerHTML
+    quotePreview.winHeight = d.body.clientHeight
     $.show preview
     $.bind target, 'mousemove', quotePreview.mousemove
     $.bind target, 'mouseout',  quotePreview.mouseout
@@ -1340,7 +1341,17 @@ quotePreview =
     {clientX, clientY} = e
     preview = $ '#qp'
     preview.style.left = clientX + 45
-    preview.style.top  = clientY - 120
+
+    pHeight = preview.clientHeight
+    top = clientY - 120
+    bot = top + pHeight
+    preview.style.top =
+      if quotePreview.winHeight < pHeight or top < 0
+        0
+      else if bot > quotePreview.winHeight
+        quotePreview.winHeight - pHeight
+      else
+        top
   mouseout: (e) ->
     {target} = e
     preview = $ '#qp'
@@ -1478,7 +1489,6 @@ imageHover =
       img.src = target.parentNode.href
       $.show img
       imageHover.winHeight = d.body.clientHeight
-      imageHover.winWidth  = d.body.clientWidth
       $.bind target, 'mousemove', imageHover.cb.mousemove
       $.bind target, 'mouseout',  imageHover.cb.mouseout
     mousemove: (e) ->
