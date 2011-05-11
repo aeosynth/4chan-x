@@ -58,7 +58,7 @@
  */
 
 (function() {
-  var $, $$, Favicon, NAMESPACE, Recaptcha, anonymize, config, d, expandComment, expandThread, g, imageHover, imgExpand, imgGif, imgPreloading, keybinds, localize, log, main, nav, nodeInserted, options, qr, quickReport, quoteBacklink, quotePreview, redirect, replyHiding, sauce, threadHiding, threading, titlePost, ui, unread, updater, watcher, _config, _ref;
+  var $, $$, Favicon, NAMESPACE, Recaptcha, anonymize, config, d, expandComment, expandThread, g, imageHover, imgExpand, imgGif, imgPreloading, keybinds, localize, log, main, nav, nodeInserted, options, qr, quickReport, quoteBacklink, quoteInlining, quotePreview, redirect, replyHiding, sauce, threadHiding, threading, titlePost, ui, unread, updater, watcher, _config, _ref;
   var __slice = Array.prototype.slice;
   if (typeof console !== "undefined" && console !== null) {
     log = function(arg) {
@@ -85,6 +85,7 @@
         'Quick Reply': [true, 'Reply without leaving the page'],
         'Quick Report': [true, 'Add quick report buttons'],
         'Quote Backlinks': [false, 'Add quote backlinks'],
+        'Quote Inlining': [false, 'Append quote upon clicking'],
         'Quote Preview': [false, 'Show quote content on hover'],
         'Reply Hiding': [true, 'Hide single replies'],
         'Sauce': [true, 'Add sauce to images'],
@@ -1705,9 +1706,59 @@
           $.bind(link, 'mousemove', ui.hover);
           $.bind(link, 'mouseout', ui.hoverend);
         }
+        if ($.config('Quote Inlining')) {
+          $.bind(link, 'click', quoteInlining.toggleBackquote);
+        }
         _results.push($.before($('td > br, blockquote', el), link));
       }
       return _results;
+    }
+  };
+  quoteInlining = {
+    init: function() {
+      return g.callbacks.push(quoteInlining.node);
+    },
+    node: function(root) {
+      var quote, _i, _len, _ref, _results;
+      _ref = $$('a.quotelink', root);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        quote = _ref[_i];
+        _results.push($.bind(quote, 'click', quoteInlining.toggleQuote));
+      }
+      return _results;
+    },
+    toggleQuote: function(e) {
+      var id, inline, inlined, _i, _len, _ref;
+      e.preventDefault();
+      id = this.textContent.slice(2);
+      _ref = $$('div', this.parentNode);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        inlined = _ref[_i];
+        return $.remove(inlined);
+      }
+      inline = $.el('div', {
+        className: 'replyhl inlinequote',
+        innerHTML: d.getElementById(id).innerHTML
+      });
+      inline.setAttribute('name', id);
+      return $.after(this, inline);
+    },
+    toggleBackquote: function(e) {
+      var id, inline, inlined, _i, _len, _ref;
+      e.preventDefault();
+      id = this.textContent.slice(2);
+      _ref = $$('td > div, .op > div', this.parentNode);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        inlined = _ref[_i];
+        return $.remove(inlined);
+      }
+      inline = $.el('div', {
+        className: 'replyhl inlinequote',
+        innerHTML: d.getElementById(id).innerHTML
+      });
+      inline.setAttribute('name', id);
+      return $.after($('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline);
     }
   };
   quotePreview = {
@@ -2261,6 +2312,9 @@
       if ($.config('Quote Backlinks')) {
         quoteBacklink.init();
       }
+      if ($.config('Quote Inlining')) {
+        quoteInlining.init();
+      }
       if ($.config('Quote Preview')) {
         quotePreview.init();
       }
@@ -2450,6 +2504,11 @@
       }\
       #recaptcha_whatsthis {\
         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAQAAAD8fJRsAAAAk0lEQVQYV3WMsQ3CMBBFf0ECmYDJqIkFk0TpkcgEUCeegWzADoi0yQbm3cUFBeifrX/vWZZ2f+K4UlDURCKtcua4VfpK64oJDg/a66zFe1hFpN7AHWvnIprY8nPSk9zpVxcTLYukmXZynEWp3peXLpxV9CrF1L6OtDGL2kTB1QBmPTj2pIEUJkwdNehNBpphxOZ3PgIeQ0jaC7S6AAAAAElFTkSuQmCC) no-repeat center;\
+      }\
+\
+      div.inlinequote {\
+        border: 1px dashed #C8A;\
+        display: table;\
       }\
 \
       #updater {\

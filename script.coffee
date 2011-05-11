@@ -29,6 +29,7 @@ config =
       'Quick Reply':       [true,  'Reply without leaving the page']
       'Quick Report':      [true,  'Add quick report buttons']
       'Quote Backlinks':   [false, 'Add quote backlinks']
+      'Quote Inlining':    [false, 'Append quote upon clicking']
       'Quote Preview':     [false, 'Show quote content on hover']
       'Reply Hiding':      [true,  'Hide single replies']
       'Sauce':             [true,  'Add sauce to images']
@@ -1366,7 +1367,46 @@ quoteBacklink =
         $.bind link, 'mouseover', quotePreview.mouseover
         $.bind link, 'mousemove', ui.hover
         $.bind link, 'mouseout',  ui.hoverend
+      if $.config 'Quote Inlining'
+        $.bind link, 'click', quoteInlining.toggleBackquote
       $.before $('td > br, blockquote', el), link
+
+quoteInlining =
+  init: ->
+    g.callbacks.push quoteInlining.node
+  node: (root) ->
+    for quote in $$ 'a.quotelink', root
+      $.bind quote, 'click', quoteInlining.toggleQuote
+
+  toggleQuote: (e) ->
+    e.preventDefault()
+
+    #inb4 copypasting quotePreview's code to load cross-thread/boards quotes
+    #you will probably want to refactor this bitch
+    id = @textContent[2..] #NOT okay for cross-thread/boards
+
+    for inlined in $$ 'div', this.parentNode
+      #That IF won't work goddamnit
+      #if inlined.name is id
+      return $.remove inlined
+    inline = $.el 'div',
+      className: 'replyhl inlinequote'
+      innerHTML: d.getElementById(id).innerHTML
+    inline.setAttribute 'name', id #doesn't seem to work without setAttribute
+    $.after this, inline
+
+  toggleBackquote: (e) ->
+    e.preventDefault()
+    id = @textContent[2..]
+    for inlined in $$ 'td > div, .op > div', this.parentNode
+      #That IF won't work goddamnit
+      #if inlined.name is id
+      return $.remove inlined
+    inline = $.el 'div',
+      className: 'replyhl inlinequote'
+      innerHTML: d.getElementById(id).innerHTML
+    inline.setAttribute 'name', id #doesn't seem to work without setAttribute
+    $.after $('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline
 
 quotePreview =
   init: ->
@@ -1765,6 +1805,9 @@ main =
     if $.config 'Quote Backlinks'
       quoteBacklink.init()
 
+    if $.config 'Quote Inlining'
+      quoteInlining.init()
+
     if $.config 'Quote Preview'
       quotePreview.init()
 
@@ -1943,6 +1986,11 @@ main =
       }
       #recaptcha_whatsthis {
         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAQAAAD8fJRsAAAAk0lEQVQYV3WMsQ3CMBBFf0ECmYDJqIkFk0TpkcgEUCeegWzADoi0yQbm3cUFBeifrX/vWZZ2f+K4UlDURCKtcua4VfpK64oJDg/a66zFe1hFpN7AHWvnIprY8nPSk9zpVxcTLYukmXZynEWp3peXLpxV9CrF1L6OtDGL2kTB1QBmPTj2pIEUJkwdNehNBpphxOZ3PgIeQ0jaC7S6AAAAAElFTkSuQmCC) no-repeat center;
+      }
+
+      div.inlinequote {
+        border: 1px dashed #C8A;
+        display: table;
       }
 
       #updater {
