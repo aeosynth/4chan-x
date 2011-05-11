@@ -1732,7 +1732,7 @@
       var id, inline, inlined, _i, _len, _ref;
       e.preventDefault();
       id = this.textContent.slice(2);
-      _ref = $$('div', this.parentNode);
+      _ref = $$('div', this.parentNode.parentNode);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         inlined = _ref[_i];
         return $.remove(inlined);
@@ -1742,7 +1742,7 @@
         innerHTML: d.getElementById(id).innerHTML
       });
       inline.setAttribute('name', id);
-      return $.after(this, inline);
+      return $.after(this.parentNode, inline);
     },
     toggleBackquote: function(e) {
       var id, inline, inlined, _i, _len, _ref;

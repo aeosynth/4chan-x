@@ -1385,7 +1385,7 @@ quoteInlining =
     #you will probably want to refactor this bitch
     id = @textContent[2..] #NOT okay for cross-thread/boards
 
-    for inlined in $$ 'div', this.parentNode
+    for inlined in $$ 'div', this.parentNode.parentNode
       #That IF won't work goddamnit
       #if inlined.name is id
       return $.remove inlined
@@ -1393,7 +1393,7 @@ quoteInlining =
       className: 'replyhl inlinequote'
       innerHTML: d.getElementById(id).innerHTML
     inline.setAttribute 'name', id #doesn't seem to work without setAttribute
-    $.after this, inline
+    $.after this.parentNode, inline
 
   toggleBackquote: (e) ->
     e.preventDefault()
