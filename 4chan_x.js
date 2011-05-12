@@ -1729,29 +1729,31 @@
       return _results;
     },
     toggleQuote: function(e) {
-      var el, id, inline;
+      var el, id, idd, inline;
       e.preventDefault();
       id = this.textContent.slice(2);
-      if (el = d.getElementById('iq' + id + '_' + this.parentNode.parentNode.parentNode.id)) {
+      idd = 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id;
+      if (el = d.getElementById(idd)) {
         return $.remove(el);
       }
       inline = $.el('div', {
         className: 'replyhl inlinequote',
-        id: 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id,
+        id: idd,
         innerHTML: d.getElementById(id).innerHTML
       });
       return $.after(this.parentNode, inline);
     },
     toggleBackquote: function(e) {
-      var el, id, inline;
+      var el, id, idd, inline;
       e.preventDefault();
       id = this.textContent.slice(2);
-      if (el = d.getElementById('ibq' + id + '_' + this.parentNode.id)) {
+      idd = 'ibq' + id + '_' + this.parentNode.id;
+      if (el = d.getElementById(idd)) {
         return $.remove(el);
       }
       inline = $.el('div', {
         className: 'replyhl inlinequote',
-        id: 'ibq' + id + '_' + this.parentNode.id,
+        id: idd,
         innerHTML: d.getElementById(id).innerHTML
       });
       return $.after($('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline);

@@ -1385,22 +1385,24 @@ quoteInlining =
     #you will probably want to refactor this bitch
     id = @textContent[2..] #NOT okay for cross-thread/boards
 
-    if el = d.getElementById('iq' + id + '_' + this.parentNode.parentNode.parentNode.id)
+    idd = 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id
+    if el = d.getElementById idd
       return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
-      id: 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id
+      id: idd
       innerHTML: d.getElementById(id).innerHTML
     $.after this.parentNode, inline
 
   toggleBackquote: (e) ->
     e.preventDefault()
     id = @textContent[2..]
-    if el = d.getElementById('ibq' + id + '_' + this.parentNode.id)
+    idd = 'ibq' + id + '_' + this.parentNode.id
+    if el = d.getElementById idd
       return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
-      id: 'ibq' + id + '_' + this.parentNode.id
+      id: idd
       innerHTML: d.getElementById(id).innerHTML
     $.after $('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline
 
