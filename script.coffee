@@ -1385,27 +1385,23 @@ quoteInlining =
     #you will probably want to refactor this bitch
     id = @textContent[2..] #NOT okay for cross-thread/boards
 
-    for inlined in $$ 'div', this.parentNode.parentNode
-      #That IF won't work goddamnit
-      #if inlined.name is id
-      return $.remove inlined
+    if el = d.getElementById('iq' + id + '_' + this.parentNode.parentNode.parentNode.id)
+      return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
+      id: 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id
       innerHTML: d.getElementById(id).innerHTML
-    inline.setAttribute 'name', id #doesn't seem to work without setAttribute
     $.after this.parentNode, inline
 
   toggleBackquote: (e) ->
     e.preventDefault()
     id = @textContent[2..]
-    for inlined in $$ 'td > div, .op > div', this.parentNode
-      #That IF won't work goddamnit
-      #if inlined.name is id
-      return $.remove inlined
+    if el = d.getElementById('ibq' + id + '_' + this.parentNode.id)
+      return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
+      id: 'ibq' + id + '_' + this.parentNode.id
       innerHTML: d.getElementById(id).innerHTML
-    inline.setAttribute 'name', id #doesn't seem to work without setAttribute
     $.after $('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline
 
 quotePreview =

@@ -1729,35 +1729,31 @@
       return _results;
     },
     toggleQuote: function(e) {
-      var id, inline, inlined, _i, _len, _ref;
+      var el, id, inline;
       e.preventDefault();
       id = this.textContent.slice(2);
-      _ref = $$('div', this.parentNode.parentNode);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        inlined = _ref[_i];
-        return $.remove(inlined);
+      if (el = d.getElementById('iq' + id + '_' + this.parentNode.parentNode.parentNode.id)) {
+        return $.remove(el);
       }
       inline = $.el('div', {
         className: 'replyhl inlinequote',
+        id: 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id,
         innerHTML: d.getElementById(id).innerHTML
       });
-      inline.setAttribute('name', id);
       return $.after(this.parentNode, inline);
     },
     toggleBackquote: function(e) {
-      var id, inline, inlined, _i, _len, _ref;
+      var el, id, inline;
       e.preventDefault();
       id = this.textContent.slice(2);
-      _ref = $$('td > div, .op > div', this.parentNode);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        inlined = _ref[_i];
-        return $.remove(inlined);
+      if (el = d.getElementById('ibq' + id + '_' + this.parentNode.id)) {
+        return $.remove(el);
       }
       inline = $.el('div', {
         className: 'replyhl inlinequote',
+        id: 'ibq' + id + '_' + this.parentNode.id,
         innerHTML: d.getElementById(id).innerHTML
       });
-      inline.setAttribute('name', id);
       return $.after($('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline);
     }
   };
