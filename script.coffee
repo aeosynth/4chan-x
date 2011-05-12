@@ -1385,8 +1385,8 @@ quoteInlining =
     #you will probably want to refactor this bitch
     id = @textContent[2..] #NOT okay for cross-thread/boards
 
-    idd = 'iq' + id + '_' + this.parentNode.parentNode.parentNode.id
-    if el = d.getElementById idd
+    idd = 'iq' + id
+    if el = $ "##{idd}", this.parentNode.parentNode
       return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
@@ -1397,8 +1397,8 @@ quoteInlining =
   toggleBackquote: (e) ->
     e.preventDefault()
     id = @textContent[2..]
-    idd = 'ibq' + id + '_' + this.parentNode.id
-    if el = d.getElementById idd
+    idd = 'ibq' + id
+    if el = $ "##{idd}", this.parentNode
       return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
