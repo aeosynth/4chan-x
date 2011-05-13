@@ -1353,7 +1353,7 @@ quoteBacklink =
     #better coffee-script way of doing this?
     id = root.id or $('td[id]', root).id
     quotes = {}
-    tid = g.THREAD_ID
+    tid = g.THREAD_ID or root.parentNode.firstChild.id
     for quote in $$ 'a.quotelink', root
       continue unless qid = quote.textContent.match /\d+/
       [qid] = qid
@@ -1411,7 +1411,6 @@ quoteInlining =
       id: idd
       innerHTML: d.getElementById(id).innerHTML
     $.after $('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline
-
 
 quotePreview =
   init: ->
