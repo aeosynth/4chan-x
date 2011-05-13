@@ -45,7 +45,7 @@
 
 /* CONTRIBUTORS
  *
- * Mayhem - fix updater default options
+ * Mayhem - various features / fixes
  * Ongpot - sfw favicon
  * thisisanon - nsfw + 404 favicons
  * Anonymous - empty favicon
@@ -58,7 +58,7 @@
  */
 
 (function() {
-  var $, $$, Favicon, NAMESPACE, Recaptcha, anonymize, config, d, expandComment, expandThread, g, imageHover, imgExpand, imgGif, imgPreloading, keybinds, localize, log, main, nav, nodeInserted, options, qr, quickReport, quoteBacklink, quoteInlining, quotePreview, redirect, replyHiding, sauce, threadHiding, threading, titlePost, ui, unread, updater, watcher, _config, _ref;
+  var $, $$, Favicon, NAMESPACE, Recaptcha, anonymize, config, d, expandComment, expandThread, g, imageHover, imgExpand, imgGif, imgPreloading, keybinds, localize, log, main, nav, nodeInserted, options, qr, quoteBacklink, quoteInlining, quotePreview, redirect, replyHiding, reportButton, sauce, threadHiding, threading, titlePost, ui, unread, updater, watcher, _config, _ref;
   var __slice = Array.prototype.slice;
   if (typeof console !== "undefined" && console !== null) {
     log = function(arg) {
@@ -83,11 +83,11 @@
         'Persistent QR': [false, 'Quick reply won\'t disappear after posting. Only in replies.'],
         'Post in Title': [true, 'Show the op\'s post in the tab title'],
         'Quick Reply': [true, 'Reply without leaving the page'],
-        'Quick Report': [true, 'Add quick report buttons'],
         'Quote Backlinks': [false, 'Add quote backlinks'],
         'Quote Inlining': [false, 'Append quote upon clicking'],
         'Quote Preview': [false, 'Show quote content on hover'],
         'Reply Hiding': [true, 'Hide single replies'],
+        'Report Button': [true, 'Add report buttons'],
         'Sauce': [true, 'Add sauce to images'],
         'Show Stubs': [true, 'Of hidden threads / replies'],
         'Thread Expansion': [true, 'View all replies'],
@@ -608,6 +608,7 @@
         if (!(dd = $('td.doubledash', root))) {
           return;
         }
+        dd.className = 'replyhider';
         a = $.el('a', {
           textContent: '[ - ]'
         });
@@ -1584,8 +1585,8 @@
     cb: {
       node: function(root) {
         var name, trip;
-        name = $$('span.postername, span.commentpostername', root);
-        name.innerHTML = 'Anonymous';
+        name = $('span.commentpostername, span.postername', root);
+        name.textContent = 'Anonymous';
         if (trip = $('span.postertrip', root)) {
           if (trip.parentNode.nodeName === 'A') {
             return $.remove(trip.parentNode);
@@ -1678,9 +1679,10 @@
       return g.callbacks.push(quoteBacklink.node);
     },
     node: function(root) {
-      var el, id, link, qid, quote, quotes, _i, _len, _ref, _results;
+      var el, id, link, qid, quote, quotes, tid, _i, _len, _ref, _results;
       id = root.id || $('td[id]', root).id;
       quotes = {};
+      tid = g.THREAD_ID;
       _ref = $$('a.quotelink', root);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
@@ -1688,6 +1690,9 @@
           continue;
         }
         qid = qid[0];
+        if (qid === tid) {
+          continue;
+        }
         quotes[qid] = quote;
       }
       _results = [];
@@ -1841,23 +1846,24 @@
       return qp.innerHTML = html;
     }
   };
-  quickReport = {
+  reportButton = {
     init: function() {
-      return g.callbacks.push(quickReport.cb.node);
+      return g.callbacks.push(reportButton.cb.node);
     },
     cb: {
       node: function(root) {
         var a, span;
         span = $('span[id^=no]', root);
         a = $.el('a', {
+          className: 'reportbutton',
           innerHTML: '[&nbsp;!&nbsp;]'
         });
-        $.bind(a, 'click', quickReport.cb.report);
+        $.bind(a, 'click', reportButton.cb.report);
         $.after(span, a);
         return $.after(span, $.tn(' '));
       },
       report: function(e) {
-        return quickReport.report(this);
+        return reportButton.report(this);
       }
     },
     report: function(target) {
@@ -2308,8 +2314,8 @@
       if ($.config('Quick Reply')) {
         qr.init();
       }
-      if ($.config('Quick Report')) {
-        quickReport.init();
+      if ($.config('Report Button')) {
+        reportButton.init();
       }
       if ($.config('Quote Backlinks')) {
         quoteBacklink.init();
@@ -2402,6 +2408,9 @@
       }\
       .error {\
         color: red;\
+      }\
+      td.replyhider {\
+        vertical-align: top;\
       }\
 \
       div.thread.stub > *:not(.block) {\
