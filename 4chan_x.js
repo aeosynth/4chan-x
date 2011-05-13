@@ -1731,16 +1731,20 @@
     toggleQuote: function(e) {
       var el, id, idd, inline;
       e.preventDefault();
-      id = this.textContent.slice(2);
+      id = this.textContent.match(/\d+/);
       idd = 'iq' + id;
       if (el = $("#" + idd, this.parentNode.parentNode)) {
         return $.remove(el);
       }
       inline = $.el('div', {
         className: 'replyhl inlinequote',
-        id: idd,
-        innerHTML: d.getElementById(id).innerHTML
+        id: idd
       });
+      if (el = d.getElementById(id)) {
+        inline.innerHTML = el.innerHTML;
+      } else {
+        inline.innerHTML = "Loading " + id + "...";
+      }
       return $.after(this.parentNode, inline);
     },
     toggleBackquote: function(e) {

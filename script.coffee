@@ -1380,18 +1380,19 @@ quoteInlining =
 
   toggleQuote: (e) ->
     e.preventDefault()
-
-    #inb4 copypasting quotePreview's code to load cross-thread/boards quotes
-    #you will probably want to refactor this bitch
-    id = @textContent[2..] #NOT okay for cross-thread/boards
-
+    id = @textContent.match /\d+/
     idd = 'iq' + id
     if el = $ "##{idd}", this.parentNode.parentNode
       return $.remove el
     inline = $.el 'div',
       className: 'replyhl inlinequote'
       id: idd
-      innerHTML: d.getElementById(id).innerHTML
+    if el = d.getElementById id
+      inline.innerHTML = el.innerHTML
+    else
+      inline.innerHTML = "Loading #{id}..."
+      #inb4 copypasting quotePreview's parsing to load cross-thread/boards quotes
+      #you will probably want to refactor this bitch
     $.after this.parentNode, inline
 
   toggleBackquote: (e) ->
@@ -1405,6 +1406,7 @@ quoteInlining =
       id: idd
       innerHTML: d.getElementById(id).innerHTML
     $.after $('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline
+
 
 quotePreview =
   init: ->
