@@ -1380,6 +1380,7 @@ quoteInlining =
     g.callbacks.push quoteInlining.node
   node: (root) ->
     for quote in $$ 'a.quotelink', root
+      quote.removeAttribute 'onclick'
       $.bind quote, 'click', quoteInlining.toggleQuote
 
   toggleQuote: (e) ->

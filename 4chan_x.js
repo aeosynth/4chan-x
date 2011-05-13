@@ -1729,6 +1729,7 @@
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
+        quote.removeAttribute('onclick');
         _results.push($.bind(quote, 'click', quoteInlining.toggleQuote));
       }
       return _results;
