@@ -1381,6 +1381,16 @@ quoteInlining =
     for quote in $$ 'a.quotelink', root
       quote.removeAttribute 'onclick'
       $.bind quote, 'click', quoteInlining.toggleQuote
+  rebind: (inline) ->
+    quoteInlining.node inline
+    for backlink in $$ 'a.backlink', inline
+      $.bind backlink, 'click', quoteInlining.toggleBackquote
+      if $.config 'Quote Preview'
+        $.bind backlink, 'mouseover', quotePreview.mouseover
+        $.bind backlink, 'mousemove', ui.hover
+        $.bind backlink, 'mouseout',  ui.hoverend
+    if $.config 'Quote Preview'
+      quotePreview.node inline
 
   toggleQuote: (e) ->
     e.preventDefault()
@@ -1397,19 +1407,7 @@ quoteInlining =
       inline.innerHTML = "Loading #{id}..."
       #inb4 copypasting quotePreview's parsing to load cross-thread/boards quotes
       #you will probably want to refactor this bitch
-
-    #rebinding
-    quoteInlining.node inline
-    if $.config 'Quote Backlinks'
-      for backlink in $$ 'a.backlink', inline
-        $.bind backlink, 'click', quoteInlining.toggleBackquote
-        if $.config 'Quote Preview'
-          $.bind backlink, 'mouseover', quotePreview.mouseover
-          $.bind backlink, 'mousemove', ui.hover
-          $.bind backlink, 'mouseout',  ui.hoverend
-    if $.config 'Quote Preview'
-      quotePreview.node inline
-
+    quoteInlining.rebind inline
     $.after this.parentNode, inline
 
   toggleBackquote: (e) ->
@@ -1422,18 +1420,7 @@ quoteInlining =
       className: 'replyhl inlinequote'
       id: idd
       innerHTML: d.getElementById(id).innerHTML
-
-    #rebinding
-    quoteInlining.node inline
-    for backlink in $$ 'a.backlink', inline
-      $.bind backlink, 'click', quoteInlining.toggleBackquote
-      if $.config 'Quote Preview'
-        $.bind backlink, 'mouseover', quotePreview.mouseover
-        $.bind backlink, 'mousemove', ui.hover
-        $.bind backlink, 'mouseout',  ui.hoverend
-    if $.config 'Quote Preview'
-      quotePreview.node inline
-
+    quoteInlining.rebind inline
     $.after $('[class^=reply] > br:first-of-type, [class^=reply] > a:last-of-type', this.parentNode), inline
 
 quotePreview =

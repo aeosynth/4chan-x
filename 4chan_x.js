@@ -1733,8 +1733,25 @@
       }
       return _results;
     },
+    rebind: function(inline) {
+      var backlink, _i, _len, _ref;
+      quoteInlining.node(inline);
+      _ref = $$('a.backlink', inline);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        backlink = _ref[_i];
+        $.bind(backlink, 'click', quoteInlining.toggleBackquote);
+        if ($.config('Quote Preview')) {
+          $.bind(backlink, 'mouseover', quotePreview.mouseover);
+          $.bind(backlink, 'mousemove', ui.hover);
+          $.bind(backlink, 'mouseout', ui.hoverend);
+        }
+      }
+      if ($.config('Quote Preview')) {
+        return quotePreview.node(inline);
+      }
+    },
     toggleQuote: function(e) {
-      var backlink, el, id, idd, inline, _i, _len, _ref;
+      var el, id, idd, inline;
       e.preventDefault();
       id = this.textContent.match(/\d+/);
       idd = 'iq' + id;
@@ -1750,26 +1767,11 @@
       } else {
         inline.innerHTML = "Loading " + id + "...";
       }
-      quoteInlining.node(inline);
-      if ($.config('Quote Backlinks')) {
-        _ref = $$('a.backlink', inline);
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          backlink = _ref[_i];
-          $.bind(backlink, 'click', quoteInlining.toggleBackquote);
-          if ($.config('Quote Preview')) {
-            $.bind(backlink, 'mouseover', quotePreview.mouseover);
-            $.bind(backlink, 'mousemove', ui.hover);
-            $.bind(backlink, 'mouseout', ui.hoverend);
-          }
-        }
-      }
-      if ($.config('Quote Preview')) {
-        quotePreview.node(inline);
-      }
+      quoteInlining.rebind(inline);
       return $.after(this.parentNode, inline);
     },
     toggleBackquote: function(e) {
-      var backlink, el, id, idd, inline, _i, _len, _ref;
+      var el, id, idd, inline;
       e.preventDefault();
       id = this.textContent.slice(2);
       idd = 'ibq' + id;
@@ -1781,20 +1783,7 @@
         id: idd,
         innerHTML: d.getElementById(id).innerHTML
       });
-      quoteInlining.node(inline);
-      _ref = $$('a.backlink', inline);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        backlink = _ref[_i];
-        $.bind(backlink, 'click', quoteInlining.toggleBackquote);
-        if ($.config('Quote Preview')) {
-          $.bind(backlink, 'mouseover', quotePreview.mouseover);
-          $.bind(backlink, 'mousemove', ui.hover);
-          $.bind(backlink, 'mouseout', ui.hoverend);
-        }
-      }
-      if ($.config('Quote Preview')) {
-        quotePreview.node(inline);
-      }
+      quoteInlining.rebind(inline);
       return $.after($('[class^=reply] > br:first-of-type, [class^=reply] > a:last-of-type', this.parentNode), inline);
     }
   };
