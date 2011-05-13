@@ -1686,10 +1686,9 @@
       _ref = $$('a.quotelink', root);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
-        if (!(qid = quote.textContent.match(/\d+/))) {
+        if (!(qid = quote.hash.substring(1))) {
           continue;
         }
-        qid = qid[0];
         if (qid === tid) {
           continue;
         }

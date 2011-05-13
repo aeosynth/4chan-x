@@ -1355,8 +1355,7 @@ quoteBacklink =
     quotes = {}
     tid = g.THREAD_ID or root.parentNode.firstChild.id
     for quote in $$ 'a.quotelink', root
-      continue unless qid = quote.textContent.match /\d+/
-      [qid] = qid
+      continue unless qid = quote.hash.substring 1
       #don't backlink the op
       continue if qid == tid
       #duplicate quotes get overwritten
