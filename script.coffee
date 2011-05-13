@@ -1397,6 +1397,19 @@ quoteInlining =
       inline.innerHTML = "Loading #{id}..."
       #inb4 copypasting quotePreview's parsing to load cross-thread/boards quotes
       #you will probably want to refactor this bitch
+
+    #rebinding
+    quoteInlining.node inline
+    if $.config 'Quote Backlinks'
+      for backlink in $$ 'a.backlink', inline
+        $.bind backlink, 'click', quoteInlining.toggleBackquote
+        if $.config 'Quote Preview'
+          $.bind backlink, 'mouseover', quotePreview.mouseover
+          $.bind backlink, 'mousemove', ui.hover
+          $.bind backlink, 'mouseout',  ui.hoverend
+    if $.config 'Quote Preview'
+      quotePreview.node inline
+
     $.after this.parentNode, inline
 
   toggleBackquote: (e) ->
@@ -1409,7 +1422,19 @@ quoteInlining =
       className: 'replyhl inlinequote'
       id: idd
       innerHTML: d.getElementById(id).innerHTML
-    $.after $('td > br:first-of-type, td > a:last-of-type, .op > a:last-of-type ', this.parentNode), inline
+
+    #rebinding
+    quoteInlining.node inline
+    for backlink in $$ 'a.backlink', inline
+      $.bind backlink, 'click', quoteInlining.toggleBackquote
+      if $.config 'Quote Preview'
+        $.bind backlink, 'mouseover', quotePreview.mouseover
+        $.bind backlink, 'mousemove', ui.hover
+        $.bind backlink, 'mouseout',  ui.hoverend
+    if $.config 'Quote Preview'
+      quotePreview.node inline
+
+    $.after $('[class^=reply] > br:first-of-type, [class^=reply] > a:last-of-type', this.parentNode), inline
 
 quotePreview =
   init: ->
