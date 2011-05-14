@@ -58,7 +58,7 @@
  */
 
 (function() {
-  var $, $$, Favicon, NAMESPACE, Recaptcha, anonymize, config, d, expandComment, expandThread, g, imageHover, imgExpand, imgGif, imgPreloading, keybinds, localize, log, main, nav, nodeInserted, options, qr, quoteBacklink, quotePreview, redirect, replyHiding, reportButton, sauce, threadHiding, threading, titlePost, ui, unread, updater, watcher, _config, _ref;
+  var $, $$, Favicon, NAMESPACE, Recaptcha, anonymize, config, d, expandComment, expandThread, g, imageHover, imgExpand, imgGif, imgPreloading, keybinds, localize, log, main, nav, nodeInserted, options, qr, quoteBacklink, quoteInlining, quotePreview, redirect, replyHiding, reportButton, sauce, threadHiding, threading, titlePost, ui, unread, updater, watcher, _config, _ref;
   var __slice = Array.prototype.slice;
   if (typeof console !== "undefined" && console !== null) {
     log = function(arg) {
@@ -83,8 +83,9 @@
         'Persistent QR': [false, 'Quick reply won\'t disappear after posting. Only in replies.'],
         'Post in Title': [true, 'Show the op\'s post in the tab title'],
         'Quick Reply': [true, 'Reply without leaving the page'],
-        'Quote Backlinks': [false, 'Add quote backlinks'],
-        'Quote Preview': [false, 'Show quote content on hover'],
+        'Quote Backlinks': [true, 'Add quote backlinks'],
+        'Quote Inlining': [true, 'Append quote upon clicking'],
+        'Quote Preview': [true, 'Show quote content on hover'],
         'Reply Hiding': [true, 'Hide single replies'],
         'Report Button': [true, 'Add report buttons'],
         'Sauce': [true, 'Add sauce to images'],
@@ -1681,14 +1682,13 @@
       var el, id, link, qid, quote, quotes, tid, _i, _len, _ref, _results;
       id = root.id || $('td[id]', root).id;
       quotes = {};
-      tid = g.THREAD_ID;
+      tid = g.THREAD_ID || root.parentNode.firstChild.id;
       _ref = $$('a.quotelink', root);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
-        if (!(qid = quote.textContent.match(/\d+/))) {
+        if (!(qid = quote.hash.substring(1))) {
           continue;
         }
-        qid = qid[0];
         if (qid === tid) {
           continue;
         }
@@ -1710,9 +1710,93 @@
           $.bind(link, 'mousemove', ui.hover);
           $.bind(link, 'mouseout', ui.hoverend);
         }
+        if ($.config('Quote Inlining')) {
+          $.bind(link, 'click', quoteInlining.toggleBackquote);
+        }
         _results.push($.before($('td > br, blockquote', el), link));
       }
       return _results;
+    }
+  };
+  quoteInlining = {
+    init: function() {
+      return g.callbacks.push(quoteInlining.node);
+    },
+    node: function(root) {
+      var quote, _i, _len, _ref, _results;
+      _ref = $$('a.quotelink', root);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        quote = _ref[_i];
+        quote.removeAttribute('onclick');
+        _results.push($.bind(quote, 'click', quoteInlining.toggleQuote));
+      }
+      return _results;
+    },
+    rebind: function(inline) {
+      var backlink, _i, _len, _ref;
+      if ($.config('Image Expansion')) {
+        imgExpand.cb.node(inline);
+      }
+      if ($.config('Image Hover')) {
+        imageHover.cb.node(inline);
+      }
+      if ($.config('Quick Reply')) {
+        qr.cb.node(inline);
+      }
+      quoteInlining.node(inline);
+      _ref = $$('a.backlink', inline);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        backlink = _ref[_i];
+        $.bind(backlink, 'click', quoteInlining.toggleBackquote);
+        if ($.config('Quote Preview')) {
+          $.bind(backlink, 'mouseover', quotePreview.mouseover);
+          $.bind(backlink, 'mousemove', ui.hover);
+          $.bind(backlink, 'mouseout', ui.hoverend);
+        }
+      }
+      if ($.config('Quote Preview')) {
+        quotePreview.node(inline);
+      }
+      if ($.config('Report Button')) {
+        return $.bind($('a.reportbutton', inline), 'click', reportButton.cb.report);
+      }
+    },
+    toggleQuote: function(e) {
+      var el, id, idd, inline;
+      e.preventDefault();
+      id = this.textContent.match(/\d+/);
+      idd = 'iq' + id;
+      if (el = $("#" + idd, this.parentNode.parentNode)) {
+        return $.remove(el);
+      }
+      inline = $.el('div', {
+        className: 'replyhl inlinequote',
+        id: idd
+      });
+      if (el = d.getElementById(id)) {
+        inline.innerHTML = el.innerHTML;
+      } else {
+        inline.innerHTML = "Loading " + id + "...";
+      }
+      quoteInlining.rebind(inline);
+      return $.after(this.parentNode, inline);
+    },
+    toggleBackquote: function(e) {
+      var el, id, idd, inline;
+      e.preventDefault();
+      id = this.textContent.slice(2);
+      idd = 'ibq' + id;
+      if (el = $("#" + idd, this.parentNode)) {
+        return $.remove(el);
+      }
+      inline = $.el('div', {
+        className: 'replyhl inlinequote',
+        id: idd,
+        innerHTML: d.getElementById(id).innerHTML
+      });
+      quoteInlining.rebind(inline);
+      return $.after($('[class^=reply] > br:first-of-type, [class^=reply] > a:last-of-type', this.parentNode), inline);
     }
   };
   quotePreview = {
@@ -2267,6 +2351,9 @@
       if ($.config('Quote Backlinks')) {
         quoteBacklink.init();
       }
+      if ($.config('Quote Inlining')) {
+        quoteInlining.init();
+      }
       if ($.config('Quote Preview')) {
         quotePreview.init();
       }
@@ -2459,6 +2546,11 @@
       }\
       #recaptcha_whatsthis {\
         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAQAAAD8fJRsAAAAk0lEQVQYV3WMsQ3CMBBFf0ECmYDJqIkFk0TpkcgEUCeegWzADoi0yQbm3cUFBeifrX/vWZZ2f+K4UlDURCKtcua4VfpK64oJDg/a66zFe1hFpN7AHWvnIprY8nPSk9zpVxcTLYukmXZynEWp3peXLpxV9CrF1L6OtDGL2kTB1QBmPTj2pIEUJkwdNehNBpphxOZ3PgIeQ0jaC7S6AAAAAElFTkSuQmCC) no-repeat center;\
+      }\
+\
+      div.inlinequote {\
+        border: 1px dashed #C8A;\
+        display: table;\
       }\
 \
       #updater {\

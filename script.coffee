@@ -27,8 +27,9 @@ config =
       'Persistent QR':     [false, 'Quick reply won\'t disappear after posting. Only in replies.']
       'Post in Title':     [true,  'Show the op\'s post in the tab title']
       'Quick Reply':       [true,  'Reply without leaving the page']
-      'Quote Backlinks':   [false, 'Add quote backlinks']
-      'Quote Preview':     [false, 'Show quote content on hover']
+      'Quote Backlinks':   [true, 'Add quote backlinks']
+      'Quote Inlining':    [true, 'Append quote upon clicking']
+      'Quote Preview':     [true, 'Show quote content on hover']
       'Reply Hiding':      [true,  'Hide single replies']
       'Report Button':     [true,  'Add report buttons']
       'Sauce':             [true,  'Add sauce to images']
@@ -1352,10 +1353,9 @@ quoteBacklink =
     #better coffee-script way of doing this?
     id = root.id or $('td[id]', root).id
     quotes = {}
-    tid = g.THREAD_ID
+    tid = g.THREAD_ID or root.parentNode.firstChild.id
     for quote in $$ 'a.quotelink', root
-      continue unless qid = quote.textContent.match /\d+/
-      [qid] = qid
+      continue unless qid = quote.hash.substring 1
       #don't backlink the op
       continue if qid == tid
       #duplicate quotes get overwritten
@@ -1370,7 +1370,66 @@ quoteBacklink =
         $.bind link, 'mouseover', quotePreview.mouseover
         $.bind link, 'mousemove', ui.hover
         $.bind link, 'mouseout',  ui.hoverend
+      if $.config 'Quote Inlining'
+        $.bind link, 'click', quoteInlining.toggleBackquote
       $.before $('td > br, blockquote', el), link
+
+quoteInlining =
+  init: ->
+    g.callbacks.push quoteInlining.node
+  node: (root) ->
+    for quote in $$ 'a.quotelink', root
+      quote.removeAttribute 'onclick'
+      $.bind quote, 'click', quoteInlining.toggleQuote
+  rebind: (inline) ->
+    if $.config 'Image Expansion'
+      imgExpand.cb.node inline
+    if $.config 'Image Hover'
+      imageHover.cb.node inline
+    if $.config 'Quick Reply'
+      qr.cb.node inline
+    quoteInlining.node inline
+    for backlink in $$ 'a.backlink', inline
+      $.bind backlink, 'click', quoteInlining.toggleBackquote
+      if $.config 'Quote Preview'
+        $.bind backlink, 'mouseover', quotePreview.mouseover
+        $.bind backlink, 'mousemove', ui.hover
+        $.bind backlink, 'mouseout',  ui.hoverend
+    if $.config 'Quote Preview'
+      quotePreview.node inline
+    if $.config 'Report Button'
+      $.bind $('a.reportbutton', inline), 'click', reportButton.cb.report
+
+  toggleQuote: (e) ->
+    e.preventDefault()
+    id = @textContent.match /\d+/
+    idd = 'iq' + id
+    if el = $ "##{idd}", this.parentNode.parentNode
+      return $.remove el
+    inline = $.el 'div',
+      className: 'replyhl inlinequote'
+      id: idd
+    if el = d.getElementById id
+      inline.innerHTML = el.innerHTML
+    else
+      inline.innerHTML = "Loading #{id}..."
+      #inb4 copypasting quotePreview's parsing to load cross-thread/boards quotes
+      #you will probably want to refactor this bitch
+    quoteInlining.rebind inline
+    $.after this.parentNode, inline
+
+  toggleBackquote: (e) ->
+    e.preventDefault()
+    id = @textContent[2..]
+    idd = 'ibq' + id
+    if el = $ "##{idd}", this.parentNode
+      return $.remove el
+    inline = $.el 'div',
+      className: 'replyhl inlinequote'
+      id: idd
+      innerHTML: d.getElementById(id).innerHTML
+    quoteInlining.rebind inline
+    $.after $('[class^=reply] > br:first-of-type, [class^=reply] > a:last-of-type', this.parentNode), inline
 
 quotePreview =
   init: ->
@@ -1770,6 +1829,9 @@ main =
     if $.config 'Quote Backlinks'
       quoteBacklink.init()
 
+    if $.config 'Quote Inlining'
+      quoteInlining.init()
+
     if $.config 'Quote Preview'
       quotePreview.init()
 
@@ -1951,6 +2013,11 @@ main =
       }
       #recaptcha_whatsthis {
         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAQAAAD8fJRsAAAAk0lEQVQYV3WMsQ3CMBBFf0ECmYDJqIkFk0TpkcgEUCeegWzADoi0yQbm3cUFBeifrX/vWZZ2f+K4UlDURCKtcua4VfpK64oJDg/a66zFe1hFpN7AHWvnIprY8nPSk9zpVxcTLYukmXZynEWp3peXLpxV9CrF1L6OtDGL2kTB1QBmPTj2pIEUJkwdNehNBpphxOZ3PgIeQ0jaC7S6AAAAAElFTkSuQmCC) no-repeat center;
+      }
+
+      div.inlinequote {
+        border: 1px dashed #C8A;
+        display: table;
       }
 
       #updater {
