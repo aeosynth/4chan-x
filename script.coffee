@@ -1382,6 +1382,12 @@ quoteInlining =
       quote.removeAttribute 'onclick'
       $.bind quote, 'click', quoteInlining.toggleQuote
   rebind: (inline) ->
+    if $.config 'Image Expansion'
+      imgExpand.cb.node inline
+    if $.config 'Image Hover'
+      imageHover.cb.node inline
+    if $.config 'Quick Reply'
+      qr.cb.node inline
     quoteInlining.node inline
     for backlink in $$ 'a.backlink', inline
       $.bind backlink, 'click', quoteInlining.toggleBackquote
@@ -1391,6 +1397,8 @@ quoteInlining =
         $.bind backlink, 'mouseout',  ui.hoverend
     if $.config 'Quote Preview'
       quotePreview.node inline
+    if $.config 'Report Button'
+      $.bind $('a.reportbutton', inline), 'click', reportButton.cb.report
 
   toggleQuote: (e) ->
     e.preventDefault()

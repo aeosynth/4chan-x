@@ -1735,6 +1735,15 @@
     },
     rebind: function(inline) {
       var backlink, _i, _len, _ref;
+      if ($.config('Image Expansion')) {
+        imgExpand.cb.node(inline);
+      }
+      if ($.config('Image Hover')) {
+        imageHover.cb.node(inline);
+      }
+      if ($.config('Quick Reply')) {
+        qr.cb.node(inline);
+      }
       quoteInlining.node(inline);
       _ref = $$('a.backlink', inline);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -1747,7 +1756,10 @@
         }
       }
       if ($.config('Quote Preview')) {
-        return quotePreview.node(inline);
+        quotePreview.node(inline);
+      }
+      if ($.config('Report Button')) {
+        return $.bind($('a.reportbutton', inline), 'click', reportButton.cb.report);
       }
     },
     toggleQuote: function(e) {
