@@ -1396,14 +1396,15 @@ quoteInline =
       if @className is 'backlink'
         $.show $.x 'ancestor::table[1]', d.getElementById id
       return
-    inline = $.el 'table',
-      className: 'inline'
-      innerHTML: "<tbody><tr><td class=reply id=i#{id}></td></tr></tbody>"
-    td = $ 'td', inline
     if el = d.getElementById id
-      td.innerHTML = el.innerHTML
+      inline = $.el 'table',
+        className: 'inline'
+        innerHTML: "<tbody><tr><td class=reply id=i#{id}></td></tr></tbody>"
+      $('td', inline).innerHTML = el.innerHTML
     else
-      td.innerHTML = "Loading #{id}..."
+      inline = $.el 'td',
+        className: 'reply'
+        innerHTML: "Loading #{id}..."
       # or ... is for index page new posts.
       # FIXME x-thread quotes
       threadID = @pathname.split('/').pop() or $.x('ancestor::div[@class="thread"]/div', this).id
@@ -1424,7 +1425,9 @@ quoteInline =
       inline.innerHTML = "#{req.status} #{req.statusText}"
       return
 
-    clone = inline.cloneNode true
+    clone = $.el 'table',
+      className: 'inline'
+      innerHTML: "<tbody><tr><td class=reply id=i#{id}></td></tr></tbody>"
     body = $.el 'body',
       innerHTML: req.responseText
     if id == threadID #OP
