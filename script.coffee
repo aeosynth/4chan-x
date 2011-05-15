@@ -1401,6 +1401,7 @@ quoteInline =
       inline.innerHTML = "#{req.status} #{req.statusText}"
       return
 
+
     body = $.el 'body',
       innerHTML: req.responseText
     if id == threadID #OP
@@ -1411,7 +1412,10 @@ quoteInline =
         if reply.id == id
           html = reply.innerHTML
           break
-    $('td', inline).innerHTML = html
+
+    clone = inline.cloneNode true
+    $('td', clone).innerHTML = html
+    $.replace inline, clone
 
 quotePreview =
   init: ->

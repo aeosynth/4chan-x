@@ -1760,7 +1760,7 @@
       }
     },
     parse: function(req, id, threadID, inline) {
-      var body, html, op, reply, _i, _len, _ref;
+      var body, clone, html, op, reply, _i, _len, _ref;
       if (req.status !== 200) {
         inline.innerHTML = "" + req.status + " " + req.statusText;
         return;
@@ -1781,7 +1781,9 @@
           }
         }
       }
-      return $('td', inline).innerHTML = html;
+      clone = inline.cloneNode(true);
+      $('td', clone).innerHTML = html;
+      return $.replace(inline, clone);
     }
   };
   quotePreview = {
