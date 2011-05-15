@@ -1759,17 +1759,12 @@
         return $.after(this.parentNode, inline);
       }
     },
-    parse: function(req, id, threadID, oldInline) {
-      var body, html, inline, op, reply, td, _i, _len, _ref;
+    parse: function(req, id, threadID, inline) {
+      var body, html, op, reply, _i, _len, _ref;
       if (req.status !== 200) {
-        oldInline.innerHTML = "" + req.status + " " + req.statusText;
+        inline.innerHTML = "" + req.status + " " + req.statusText;
         return;
       }
-      inline = $.el('table', {
-        className: 'inline',
-        innerHTML: '<tbody><tr><td class=reply></td></tr></tbody>'
-      });
-      td = $('td', inline);
       body = $.el('body', {
         innerHTML: req.responseText
       });
@@ -1786,8 +1781,7 @@
           }
         }
       }
-      td.innerHTML = html;
-      return $.replace(oldInline, inline);
+      return $('td', inline).innerHTML = html;
     }
   };
   quotePreview = {
