@@ -1667,7 +1667,7 @@
       }
       id = root.id || $('td[id]', root).id;
       quotes = {};
-      tid = g.THREAD_ID;
+      tid = g.THREAD_ID || root.parentNode.firstChild.id;
       _ref = $$('a.quotelink', root);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
@@ -1760,17 +1760,12 @@
         return $.after(this.parentNode, inline);
       }
     },
-    parse: function(req, id, threadID, oldInline) {
-      var body, html, inline, op, reply, td, _i, _len, _ref;
+    parse: function(req, id, threadID, inline) {
+      var body, html, op, reply, _i, _len, _ref;
       if (req.status !== 200) {
-        oldInline.innerHTML = "" + req.status + " " + req.statusText;
+        inline.innerHTML = "" + req.status + " " + req.statusText;
         return;
       }
-      inline = $.el('table', {
-        className: 'inline',
-        innerHTML: '<tbody><tr><td class=reply></td></tr></tbody>'
-      });
-      td = $('td', inline);
       body = $.el('body', {
         innerHTML: req.responseText
       });
@@ -1787,8 +1782,7 @@
           }
         }
       }
-      td.innerHTML = html;
-      return $.replace(oldInline, inline);
+      return $('td', inline).innerHTML = html;
     }
   };
   quotePreview = {

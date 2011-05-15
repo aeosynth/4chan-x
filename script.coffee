@@ -1336,7 +1336,7 @@ quoteBacklink =
     #better coffee-script way of doing this?
     id = root.id or $('td[id]', root).id
     quotes = {}
-    tid = g.THREAD_ID
+    tid = g.THREAD_ID or root.parentNode.firstChild.id
     for quote in $$ 'a.quotelink', root
       continue unless qid = quote.hash[1..]
       #don't backlink the op
@@ -1396,16 +1396,10 @@ quoteInline =
       $.hide $.x 'ancestor::table[1]', el
     else
       $.after @parentNode, inline
-  parse: (req, id, threadID, oldInline) ->
+  parse: (req, id, threadID, inline) ->
     if req.status isnt 200
-      oldInline.innerHTML = "#{req.status} #{req.statusText}"
+      inline.innerHTML = "#{req.status} #{req.statusText}"
       return
-
-    #this is fucking stupid
-    inline = $.el 'table',
-      className: 'inline'
-      innerHTML: '<tbody><tr><td class=reply></td></tr></tbody>'
-    td = $ 'td', inline
 
     body = $.el 'body',
       innerHTML: req.responseText
@@ -1417,8 +1411,7 @@ quoteInline =
         if reply.id == id
           html = reply.innerHTML
           break
-    td.innerHTML = html
-    $.replace oldInline, inline
+    $('td', inline).innerHTML = html
 
 quotePreview =
   init: ->
