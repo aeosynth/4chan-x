@@ -1744,15 +1744,17 @@
         }
         return;
       }
-      inline = $.el('table', {
-        className: 'inline',
-        innerHTML: "<tbody><tr><td class=reply id=i" + id + "></td></tr></tbody>"
-      });
-      td = $('td', inline);
       if (el = d.getElementById(id)) {
-        td.innerHTML = el.innerHTML;
+        inline = $.el('table', {
+          className: 'inline',
+          innerHTML: "<tbody><tr><td class=reply id=i" + id + "></td></tr></tbody>"
+        });
+        $('td', inline).innerHTML = el.innerHTML;
       } else {
-        td.innerHTML = "Loading " + id + "...";
+        inline = $.el('td', {
+          className: 'reply',
+          innerHTML: "Loading " + id + "..."
+        });
         threadID = this.pathname.split('/').pop() || $.x('ancestor::div[@class="thread"]/div', this).id;
         if (req = g.requests[threadID]) {
           if (req.readyState === 4) {
@@ -1778,7 +1780,10 @@
         inline.innerHTML = "" + req.status + " " + req.statusText;
         return;
       }
-      clone = inline.cloneNode(true);
+      clone = $.el('table', {
+        className: 'inline',
+        innerHTML: "<tbody><tr><td class=reply id=i" + id + "></td></tr></tbody>"
+      });
       body = $.el('body', {
         innerHTML: req.responseText
       });
