@@ -32,6 +32,7 @@ config =
       'Quote Backlinks':   [false, 'Add quote backlinks']
       'Quote Inline':      [false, 'Show quoted post inline on quote click']
       'Quote Preview':     [false, 'Show quote content on hover']
+      'Indicate OP quote': [true,  'Add \'(OP)\' to OP quotes']
     hide:
       'Reply Hiding':      [true,  'Hide single replies']
       'Thread Hiding':     [true,  'Hide entire threads']
@@ -733,7 +734,7 @@ options =
       title = conf[name][1]
       checked = if $.config name then "checked" else ""
       li = $.el 'li',
-        innerHTML: "<label title='#{title}'><input name='#{name}' #{checked} type=checkbox>#{name}</label>"
+        innerHTML: "<label title=\"#{title}\"><input name='#{name}' #{checked} type=checkbox>#{name}</label>"
       $.append id, li
 
   flavors: ->
@@ -1468,7 +1469,6 @@ quotePreview =
     ui.el = qp
     ui.winHeight = d.body.clientHeight
     $.show qp
-    ui.hover e
   parse: (req, id, threadID) ->
     qp = $ '#qp'
     return unless qp.innerHTML is "Loading #{id}..."
@@ -1488,6 +1488,15 @@ quotePreview =
           html = reply.innerHTML
           break
     qp.innerHTML = html
+
+quoteOP =
+  init: ->
+    g.callbacks.push quoteOP.node
+  node: (root) ->
+    tid = g.THREAD_ID or root.parentNode.firstChild.id
+    for quote in $$ 'a.quotelink', root
+      if quote.hash[1..] is tid
+        quote.textContent += ' (OP)'
 
 reportButton =
   init: ->
@@ -1620,7 +1629,6 @@ imageHover =
       ui.el = el
       ui.winHeight = d.body.clientHeight
       $.show el
-      ui.hover e
 
 imgPreloading =
   init: ->
@@ -1819,6 +1827,9 @@ main =
 
     if $.config 'Quote Preview'
       quotePreview.init()
+
+    if $.config 'Indicate OP quote'
+      quoteOP.init()
 
     if $.config 'Thread Watcher'
       watcher.init()
