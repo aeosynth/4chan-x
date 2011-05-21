@@ -1332,7 +1332,7 @@ localize =
         hour = g.chanOffset + Number hour
         meridiem = ''
         if $.config 'Localized am/pm'
-          meridiem = if hour < 12 then ' a.m.' else ' p.m.'
+          meridiem = if hour > 11 and hour < 24 then ' p.m.' else ' a.m.'
           hour = hour % 12 or 12
         date = new Date year, month, day, hour
         year = date.getFullYear() - 2000
