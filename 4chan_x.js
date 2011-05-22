@@ -1653,7 +1653,7 @@
           hour = g.chanOffset + Number(hour);
           meridiem = '';
           if ($.config('Localized am/pm')) {
-            meridiem = hour < 12 ? ' a.m.' : ' p.m.';
+            meridiem = (11 < hour && hour < 24) ? ' p.m.' : ' a.m.';
             hour = hour % 12 || 12;
           }
           date = new Date(year, month, day, hour);
