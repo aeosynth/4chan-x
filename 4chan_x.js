@@ -1837,8 +1837,7 @@
         quote = _ref[_i];
         $.bind(quote, 'mouseover', quotePreview.mouseover);
         $.bind(quote, 'mousemove', ui.hover);
-        $.bind(quote, 'mouseout', ui.hoverend);
-        _results.push($.bind(quote, 'mouseout', quotePreview.mouseout));
+        _results.push($.bind(quote, 'mouseout', ui.hoverend));
       }
       return _results;
     },
@@ -1854,6 +1853,7 @@
       if (el = d.getElementById(id)) {
         qp.innerHTML = el.innerHTML;
         $.addClass(el, 'qphl');
+        $.bind(this, 'mouseout', quotePreview.mouseout);
         if (this.className === 'backlink') {
           replyID = this.parentNode.id;
           _ref = $$('a.quotelink', qp);

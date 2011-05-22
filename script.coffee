@@ -1463,7 +1463,6 @@ quotePreview =
       $.bind quote, 'mouseover', quotePreview.mouseover
       $.bind quote, 'mousemove', ui.hover
       $.bind quote, 'mouseout',  ui.hoverend
-      $.bind quote, 'mouseout',  quotePreview.mouseout
   mouseout: ->
     $.removeClass d.getElementById(@hash[1..]), 'qphl'
   mouseover: (e) ->
@@ -1472,6 +1471,7 @@ quotePreview =
     if el = d.getElementById id
       qp.innerHTML = el.innerHTML
       $.addClass el, 'qphl'
+      $.bind @, 'mouseout', quotePreview.mouseout
       if @className is 'backlink'
         replyID = @parentNode.id
         for quote in $$ 'a.quotelink', qp
