@@ -85,6 +85,7 @@
         'Sauce': [true, 'Add sauce to images']
       },
       post: {
+        'Oto Noko': [true, 'Automatically redirects to your post'],
         'Cooldown': [false, 'Prevent \'flood detected\' errors (buggy)'],
         'Quick Reply': [true, 'Reply without leaving the page'],
         'Persistent QR': [false, 'Quick reply won\'t disappear after posting. Only in replies.']
@@ -2389,6 +2390,9 @@
         $.setValue('lastChecked', now);
       }
       $.addStyle(main.css);
+      if ($.config('Oto Noko') && !$('input[name=email]').value) {
+        $('input[name=email]').value = 'noko';
+      }
       Recaptcha.init();
       $.bind($('form[name=post]'), 'submit', qr.cb.submit);
       if ($.config('Cooldown')) {
