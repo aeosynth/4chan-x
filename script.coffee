@@ -1516,7 +1516,7 @@ quoteOP =
   init: ->
     g.callbacks.push quoteOP.node
   node: (root) ->
-    return if root.className is 'inline'
+    return if root.className is 'inline' or 'block'
     tid = g.THREAD_ID or $.x('ancestor::div[@class="thread"]/div', root).id
     for quote in $$ 'a.quotelink', root
       if quote.hash[1..] is tid

@@ -1919,7 +1919,7 @@
     },
     node: function(root) {
       var quote, tid, _i, _len, _ref, _results;
-      if (root.className === 'inline') {
+      if (root.className === 'inline' || 'block') {
         return;
       }
       tid = g.THREAD_ID || $.x('ancestor::div[@class="thread"]/div', root).id;
