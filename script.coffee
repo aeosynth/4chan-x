@@ -1427,8 +1427,7 @@ quoteInline =
       $.after @parentNode, inline
       # or ... is for index page new posts.
       threadID = @pathname.split('/').pop() or $.x('ancestor::div[@class="thread"]/div', @).id
-      url = "http://boards.4chan.org/#{g.BOARD}/res/#{threadID}"
-      $.cache url, (-> quoteInline.parse @, id, threadID, inline)
+      $.cache @href, (-> quoteInline.parse @, id, threadID, inline)
     $.addClass @, 'inlined'
   parse: (req, id, threadID, inline) ->
     if req.status isnt 200
@@ -1486,8 +1485,7 @@ quotePreview =
     else
       qp.innerHTML = "Loading #{id}..."
       threadID = @pathname.split('/').pop() or $.x('ancestor::div[@class="thread"]/div', @).id
-      url = "http://boards.4chan.org/#{g.BOARD}/res/#{threadID}"
-      $.cache url, (-> quotePreview.parse @, id, threadID)
+      $.cache @href, (-> quotePreview.parse @, id, threadID)
     ui.el = qp
     ui.winHeight = d.body.clientHeight
     $.show qp
