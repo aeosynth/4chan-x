@@ -1759,7 +1759,7 @@
       return _results;
     },
     toggle: function(e) {
-      var el, id, inline, root, table, threadID, url;
+      var el, id, inline, root, table, threadID;
       id = this.hash.slice(1);
       e.preventDefault();
       root = $.x('ancestor::td[1]', this);
@@ -1787,8 +1787,7 @@
         });
         $.after(this.parentNode, inline);
         threadID = this.pathname.split('/').pop() || $.x('ancestor::div[@class="thread"]/div', this).id;
-        url = "http://boards.4chan.org/" + g.BOARD + "/res/" + threadID;
-        $.cache(url, (function() {
+        $.cache(this.href, (function() {
           return quoteInline.parse(this, id, threadID, inline);
         }));
       }
@@ -1863,7 +1862,7 @@
       return $.removeClass(el, 'qphl');
     },
     mouseover: function(e) {
-      var el, id, qp, quote, replyID, threadID, url, _i, _len, _ref, _ref2;
+      var el, id, qp, quote, replyID, threadID, _i, _len, _ref, _ref2;
       id = this.hash.slice(1);
       qp = $('#qp');
       if (el = d.getElementById(id)) {
@@ -1882,8 +1881,7 @@
       } else {
         qp.innerHTML = "Loading " + id + "...";
         threadID = this.pathname.split('/').pop() || $.x('ancestor::div[@class="thread"]/div', this).id;
-        url = "http://boards.4chan.org/" + g.BOARD + "/res/" + threadID;
-        $.cache(url, (function() {
+        $.cache(this.href, (function() {
           return quotePreview.parse(this, id, threadID);
         }));
       }
