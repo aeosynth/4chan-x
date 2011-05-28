@@ -1551,7 +1551,7 @@ reportButton =
           className: 'reportbutton'
           innerHTML: '[&nbsp;!&nbsp;]'
         $.after span, a
-        $.after span, $.tn(' ')
+        $.after span, $.tn('\u00a0')
       $.bind a, 'click', reportButton.cb.report
     report: (e) ->
       reportButton.report @

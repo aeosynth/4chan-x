@@ -1981,7 +1981,7 @@
             innerHTML: '[&nbsp;!&nbsp;]'
           });
           $.after(span, a);
-          $.after(span, $.tn(' '));
+          $.after(span, $.tn('\u00a0'));
         }
         return $.bind(a, 'click', reportButton.cb.report);
       },
