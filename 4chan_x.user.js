@@ -91,6 +91,7 @@
       },
       quote: {
         'Quote Backlinks': [true, 'Add quote backlinks'],
+        'OP Backlinks': [false, 'Enable Quote Backlinks for the OP'],
         'Quote Inline': [true, 'Show quoted post inline on quote click'],
         'Quote Preview': [true, 'Show quote content on hover'],
         'Indicate OP quote': [true, 'Add \'(OP)\' to OP quotes']
@@ -1711,24 +1712,24 @@
       return g.callbacks.push(quoteBacklink.node);
     },
     node: function(root) {
-      var container, el, id, link, qid, quote, quotes, tid, _i, _len, _ref, _results;
-      if (root.className) {
+      var cont, container, el, id, link, qid, quote, quotes, _i, _len, _ref, _results;
+      if ($('.inline', root.parentNode)) {
         return;
       }
       container = $.el('span', {
         className: 'container'
       });
-      $.before($('br, blockquote', root), container);
+      if (!root.className) {
+        $.before($('br, blockquote', root), container);
+      } else if ($.config('OP Backlinks')) {
+        $.before($('blockquote', root), container);
+      }
       id = root.id || $('td[id]', root).id;
       quotes = {};
-      tid = g.THREAD_ID || root.parentNode.firstChild.id;
       _ref = $$('a.quotelink', root);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
         if (!(qid = quote.hash.slice(1))) {
-          continue;
-        }
-        if (qid === tid) {
           continue;
         }
         quotes[qid] = quote;
@@ -1736,7 +1737,7 @@
       _results = [];
       for (qid in quotes) {
         quote = quotes[qid];
-        if (!(el = d.getElementById(qid))) {
+        if (!(el = d.getElementById(qid) && (cont = $('.container', d.getElementById(qid))))) {
           continue;
         }
         link = $.el('a', {
@@ -1753,7 +1754,7 @@
         if ($.config('Quote Inline')) {
           $.bind(link, 'click', quoteInline.toggle);
         }
-        _results.push($.append($('.container', el), link));
+        _results.push($.append(cont, link));
       }
       return _results;
     }

@@ -31,6 +31,7 @@ config =
       'Persistent QR':     [false, 'Quick reply won\'t disappear after posting. Only in replies.']
     quote:
       'Quote Backlinks':   [true,  'Add quote backlinks']
+      'OP Backlinks':      [false, 'Enable Quote Backlinks for the OP']
       'Quote Inline':      [true,  'Show quoted post inline on quote click']
       'Quote Preview':     [true,  'Show quote content on hover']
       'Indicate OP quote': [true,  'Add \'(OP)\' to OP quotes']
@@ -1380,21 +1381,21 @@ quoteBacklink =
   init: ->
     g.callbacks.push quoteBacklink.node
   node: (root) ->
-    return if root.className
+    return if $ '.inline', root.parentNode
     container = $.el 'span',
       className: 'container'
-    $.before $('br, blockquote', root), container
+    unless root.className
+      $.before $('br, blockquote', root), container
+    else if $.config('OP Backlinks')
+      $.before $('blockquote', root), container
     id = root.id or $('td[id]', root).id
     quotes = {}
-    tid = g.THREAD_ID or root.parentNode.firstChild.id
     for quote in $$ 'a.quotelink', root
       continue unless qid = quote.hash[1..]
-      #don't backlink the op
-      continue if qid == tid
       #duplicate quotes get overwritten
       quotes[qid] = quote
     for qid, quote of quotes
-      continue unless el = d.getElementById qid
+      continue unless el = d.getElementById(qid) and cont = $('.container', d.getElementById(qid))
       link = $.el 'a',
         href: '#'+id
         className: 'backlink'
@@ -1406,7 +1407,7 @@ quoteBacklink =
         $.bind link, 'mouseout',  quotePreview.mouseout
       if $.config 'Quote Inline'
         $.bind link, 'click', quoteInline.toggle
-      $.append $('.container', el), link
+      $.append cont, link
 
 quoteInline =
   init: ->
