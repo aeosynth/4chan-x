@@ -1422,17 +1422,10 @@ quoteInline =
     root = $.x 'ancestor::td[1]', @
     if table = $ "#i#{id}", root
       $.rm table
-      $.removeClass @, 'inlined'
-      if @className is 'backlink'
-        $.show $.x 'ancestor::table[1]', d.getElementById id
-      return
+      return $.removeClass @, 'inlined'
     if el = d.getElementById id
       inline = quoteInline.table id, el.innerHTML
-      if @className is 'backlink'
-        $.after @parentNode, inline
-        $.hide $.x 'ancestor::table[1]', el
-      else
-        $.after @parentNode, inline
+      $.after @parentNode, inline
     else
       inline = $.el 'td',
         className: 'reply inline'
