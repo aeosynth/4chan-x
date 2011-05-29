@@ -1789,20 +1789,11 @@
       root = $.x('ancestor::td[1]', this);
       if (table = $("#i" + id, root)) {
         $.rm(table);
-        $.removeClass(this, 'inlined');
-        if (this.className === 'backlink') {
-          $.show($.x('ancestor::table[1]', d.getElementById(id)));
-        }
-        return;
+        return $.removeClass(this, 'inlined');
       }
       if (el = d.getElementById(id)) {
         inline = quoteInline.table(id, el.innerHTML);
-        if (this.className === 'backlink') {
-          $.after(this.parentNode, inline);
-          $.hide($.x('ancestor::table[1]', el));
-        } else {
-          $.after(this.parentNode, inline);
-        }
+        $.after(this.parentNode, inline);
       } else {
         inline = $.el('td', {
           className: 'reply inline',
