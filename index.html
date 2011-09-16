@@ -1,155 +1,130 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>4chan X</title>
-    <link rel="shortcut icon" href="favicon.png">
-    <script>
-      window.onload = function() {
-        var s = document.createElement('script'); s.async = true;
-        s.src = 'https://apis.google.com/js/plusone.js';
-        document.head.appendChild(s);
-      };
-    </script>
-    <style>
-    body {
-      font-family: Georgia, "Bitstream Charter", serif;
-      margin: auto;
-      position: relative;
-      text-align: justify;
-      width: 500px;
-    }
-    ::-moz-selection {
-      background: #FA0;
-      color: #FFF;
-      text-shadow: none;
-    }
-    ::selection {
-      background: #FA0;
-      color: #FFF;
-      text-shadow: none;
-    }
-    h1, h2, h3, h4 {
-      color: #DDD;
-      font-weight: 700;
-      text-transform: capitalize;
-      margin: 0;
-      opacity: .8;
-      overflow: hidden;
-      text-align: center;
-    }
-    h1 {
-      font-size: 110px;
-    }
-    h2 {
-      background-color: whiteSmoke;
-      border: 1px solid whiteSmoke;
-      border-radius: 4px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, .2) inset;
-      font-size: 100px;
-      margin: 5px -5px;
-      text-transform: uppercase;
-      -webkit-transition: all .2s ease-in-out;
-         -moz-transition: all .2s ease-in-out;
-           -o-transition: all .2s ease-in-out;
-              transition: all .2s ease-in-out;
-    }
-    h2:hover {
-      background-color:      rgba(255, 170, 0, .1);
-      border-color:          rgba(255, 170, 0, .25);
-      box-shadow: 0 4px 20px rgba(255, 170, 0, .6) inset;
-    }
-    h1, h2 {
-      text-shadow: 1px 1px 1px #FFF, 2px 2px 1px #FFF, 3px 3px 1px #999, 4px 4px 10px #999;
-    }
-    h2:hover a {
-      color: #E69900;
-      text-shadow: 1px 1px 1px #FFF, 2px 2px 1px #FFF, 3px 3px 1px #FA0, 4px 4px 10px #FA0;
-    }
-    h3 > * {
-      float: left;
-      width: 33%;
-    }
-    h4 {
-      margin: 1em 0;
-    }
-    h4 > * {
-      float: left;
-      width: 50%;
-    }
-    a {
-      color: #FA0;
-      text-decoration: none;
-      -webkit-transition: color .3s ease-in-out, text-shadow .4s ease-in-out;
-         -moz-transition: color .3s ease-in-out, text-shadow .4s ease-in-out;
-           -o-transition: color .3s ease-in-out, text-shadow .4s ease-in-out;
-              transition: color .3s ease-in-out, text-shadow .4s ease-in-out;
-    }
-    a:hover {
-      color: #FFF;
-      text-shadow: 0 0 10px #FA0, 0 0 3px #FA0, 0 0 3px #FA0;
-    }
-    hr {
-      border: 1px #DDD solid
-    }
-    code, pre {
-      background: #EEE;
-      border: 1px solid #DDD;
-      border-radius: 2px;
-      text-shadow: 0 1px 1px white;
-      padding: 0 1px;
-    }
-    </style>
-  </head>
-  <body>
-    <a href="http://github.com/aeosynth/4chan-x"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/7afbc8b248c68eb468279e8c17986ad46549fb71/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub"></a>
-    <h1>4chan x</h1>
-    <h2><a href="https://github.com/aeosynth/4chan-x/raw/stable/4chan_x.user.js">install</a></h2>
-    <h3>
-      <a href="https://raw.github.com/aeosynth/4chan-x/master/changelog">changelog</a>
-      <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=2DBVZBUAM4DHC&lc=US&item_name=Aeosynth&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted">donate</a>
-      <div><g:plusone></g:plusone></div>
-    </h3>
-    <hr>
-    <p>The latest stable releases of <strong>Firefox</strong>, <strong>Chrome</strong> and <strong>Opera</strong> are supported. <strong>Midori</strong> is a bad browser and you should feel bad for using it.</p>
-    <p><strong>Chrome</strong>: Install 4chan X, that's it.</p>
-    <p><strong>Firefox</strong>:</p>
-    <ul>
-      <li>If you don't have either <a href="https://addons.mozilla.org/firefox/addon/scriptish/">Scriptish</a> or <a href="https://addons.mozilla.org/firefox/addon/greasemonkey/">Greasemonkey</a> installed, install Scriptish (it can auto-update scripts), restart Firefox, and then install 4chan X.</li>
-      <li>to disable compatibility checking: go to <code>about:config</code> &gt; right-click &gt; new &gt; boolean &gt; <code>extensions.checkCompatibility.nightly</code> &gt; false. Or you can get the <a href="https://addons.mozilla.org/en-US/firefox/addon/nightly-tester-tools/">Nightly Tester Tools</a>.</li>
-    </ul>
-    <p><strong>Opera</strong>: Save 4chan X into your userscripts folder. If you haven't already, select a folder with: Ctrl + F12 (Preferences) &gt; Advanced &gt; Content &gt; Javacript Options &gt; User Javascript Folder.</p>
-    <hr>
-    <p><strong>Bug reports</strong>: before making one,</p>
-      <ol>
-        <li>Update your browser / 4chan X to the latest stable.</li>
-        <li>Disable your other extensions / scripts.</li>
-        <li>If your issue persists, report console errors, if any. Open your console with: Ctrl + Shift + J on <strong>Firefox</strong> / <strong>Chrome</strong>, Ctrl + Shift + I on <strong>Opera</strong>.</li>
-      </ol>
-    <p>Clearing your 4chan cookies will erase your settings<em>!</em></p>
-    <p><strong>Firefox</strong>: If you get an error stating <code>localStorage is null</code>, go to <code>about:config</code> and enable <code>dom.storage.enabled</code>.</p>
-    <p><strong>Chrome</strong>:</p>
-    <ul>
-      <li>Some userstyles, notably AppChan, break text input due to a <a href="https://bugs.webkit.org/show_bug.cgi?id=66216">WebKit bug</a>. <a href="http://code.google.com/p/chromium/issues/detail?id=89647">[89647]</a></li>
-      <li>4chan X only runs on 4chan; Chrome will say that it runs on all domains due to its <a href="http://www.chromium.org/developers/design-documents/user-scripts">match patterns</a>.</li>
-    </ul>
-    <h4>
-      <a href="http://chat.now.im/x/aeos">anonymous support throd</a>
-      <a href="https://github.com/aeosynth/4chan-x/issues">GitHub issues tracker</a>
-    </h4>
-    <hr>
-    <p>For css tweaks, see <a href="http://userstyles.org/styles/48538/4chan-4chan-x-css-defaults">4chan X CSS defaults</a>. For a complete userstyle, check out <a href="http://userstyles.org/styles/46162">AppChan</a>. View all 4chan userstyles by <a href="http://userstyles.org/styles/browse?search_terms=4chan">clicking here</a>.</p>
-    <p>For filtering, check out the <a href="http://userscripts.org/scripts/show/103818">4chan filter fix</a>.</p>
-    <p>For linkification / YouTube embedding, check out <a href="http://userscripts.org/scripts/show/107707">YouLink</a>, which works on the entire web, not just 4chan.</p>
-    <p>For exhentai sauce, check out <a href="http://userscripts.org/scripts/show/108810">ExSauce</a>.</p>
-    <p><strong>DownThemAll</strong>: download all images in a thread with this fast filter: <code>/^http://images.4chan.org/</code>.</p>
-    <p><strong>*nix</strong>: download all images in a thread with this shell function (add it to your <code>.bashrc</code>):</p>
-    <pre>
-dta() {
-  wget -O - $1 |
-  grep -Eo 'http://images.4chan.org/[^"]+' |
-  uniq |
-  xargs wget
-}</pre>
-  </body>
+<head>
+<title>4chan x install</title>
+<style type="text/css">
+body {
+font-family: "Georgia";
+color: #222;
+background-color: #fafafa;
+margin: 0;
+}
+#c {
+width: 750px;
+margin: 0 auto;
+}
+#b {
+text-align: center;
+}
+a {
+  color: navy;
+	text-decoration: none;
+	}
+	a:not(.button):hover {
+	text-decoration: underline;
+	}
+	h1 {
+	font-size: 90px;
+	color: #222;
+	background-color: #ccc;
+	margin: 0;
+	padding: 5px 0;
+	text-align: center;
+	height: 90px;
+	line-height: 80px;
+	text-shadow: 0 1px 1px #fff;
+	}
+	p, h2 {
+	margin: 3px 0;
+	}
+.button:after {
+content: "4chan x (2.19.3)";
+display: block;
+font-size: 10pt;
+line-height: 10pt;
+}
+.button {
+	font-size: 70pt;
+	text-transform: uppercase;
+	text-shadow: 0 1px 1px #fff;
+	line-height: 60pt;
+	display: inline-block;
+	padding: 5px;
+	background-color: #ccc;
+	background-image: -moz-linear-gradient(#eee,#ccc);
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	-moz-transition: box-shadow .5s ease-in-out;
+	margin: 10px;
+}
+.button:hover {
+box-shadow: 0 0 5px orange;
+-moz-transition: box-shadow .2s ease-in-out;
+}
+.button:active {
+	background-image: -moz-linear-gradient(#ccc,#eee);
+	}
+	.indent {
+	text-indent: 20px;
+	}
+	hr {
+	margin: 10px 20px;
+	border: 0;
+	border-top: 1px dashed #ccc;
+	}
+	.tmyk {
+	font-size: small;
+	font-weight: 100;
+	color: #888;
+	}
+</style>
+</head>
+<body>
+	<h1>4chan X</h1>
+<div id="c">
+	<div id="b">
+	<a href="#" class="button">Install</a>
+	<p id="links">
+		<a href="#">View the changelog</a> / <a href="#">Donate</a> / <a href="#">View on Github</a> / <a href="#">+1</a>
+	</p>
+	</div>
+	<hr />
+	<h2>Installation Instructions:<sup class="tmyk">(Remember to refresh 4chan [after installing] to see changes.)</sup></h2>
+	<p><strong>Chrome:</strong></p>
+	<p class="indent">Click the button at the top of the page. That's it.</p>
+	<p><strong>Firefox:</strong></p>
+	<p class="indent">If you haven't already, install either <a href="#">Scriptish</a> or <a href="#">Greasemonkey</a>.<sup class="tmyk">(See the FAQ for comparison.)</sup></p>
+	<p class="indent">Restart Firefox, come back to this page and click the button at the top of the page to install.</p>
+	<p><strong>Opera:</strong></p>
+	<p class="indent">Save 4chan X into your userscripts folder. If you haven't, select a folder with <code>CTRL + F12</code> (Preferences)&nbsp;&gt;&nbsp;Advanced&nbsp;&gt;&nbsp;Content&nbsp;&gt;&nbsp;JavaScript Options&nbsp;&gt;&nbsp;User JavaScript Folder.</p>
+	<hr />
+	<h2>Bug Reports:</h2>
+	<p class="indent">Before making one:
+			<ol>
+				<li>Update your browser &amp; 4chan X to the latest stable versions.</li>
+				<li>Disable your other extensions, scripts or userstyles and try again.</li>
+				<li>If your issue persists, report console errors (if any). Open your console with <code>CTRL + SHIFT + J</code> on <strong>Chrome/Firefox</strong> or <code>CTRL + SHIFT + I</code> if you're on <strong>Opera</strong>.</li>
+			</ol>
+	</p>
+	<p><strong>Firefox Notes:</strong></p>
+	<p class="indent">It should be noted that <strong>Firefox 3.5 is not supported</strong>.</p>
+	<hr />
+	<h2><abbr title="Frequently Asked Questions">FAQ</abbr>:</h2>
+	<p><em>BOTNET BOTNET BOTNET BOTNET</em></p>
+	<p class="indent"><strong>BLASPHEMY.</strong> Don't listen to the idiots who claim this. The source code is public for everyone to see and even fork/modify. If you can prove your claim, then okay; chances are you can't though so ignore anyone who claims this.</p>
+	<p><em>What's the difference between Scriptish and Greasemonkey?</em></p>
+	<p class="indent">Scriptish auto updates scripts for you. That's all you really need to know. If you need to learn more, they invented this thing called <a href="#">Google</a>, try using it.</p>
+	<p><em>But Scriptish/Greasemonkey isn't supported on my version of Nightly or Aurora, since Firefox 6 is too mainstream! How do I make it work?</em></p>
+	<p class="indent">You have to disable compatability checking. You can either install the <a href="#">Nightly Tester Tools</a> extension, or do it manually by <code>about:config</code>, etc...</p>
+	<p><em>I updated 4chan X and now my AppChan or [insert userstyle here] doesn't look right/broke the layout/broke/is causing errors/isn't doing what it use to/crahses my computer! Why?</em></p>
+	<p class="indent">This is not 4chan X's fault. Your issue has nothing to do with us or this userscript. Contact the creator of your userstyle and tell them to update their style. If the author is inactive or unreachable, you can always ask the userstyle gurus here:
+	<ul>
+	<li>Zixaphir [AppChan]</li>
+	<li>Mayhem [Minimalistic Mayhem]</li>
+	<li>seaweed [Obsidian Chan]</li>
+	<li>!K.WeEaBo0o [4chan reboot, Momiji]</li>
+	<li>Saxamaphone [3 Shades of 4chan]</li>
+	</ul>
+</div>
+</body>
 </html>
