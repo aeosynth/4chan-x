@@ -1182,10 +1182,7 @@ QR =
     <a class=error></a>
     "
     #XXX use dom methods to set values instead of injecting raw user input into your html -_-;
-    c = d.cookie
-    $('[name=name]', qr).value  = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
-    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
-    $('[name=pwd]', qr).value   = if m = c.match(/4chan_pass=([^;]+)/)  then decodeURIComponent m[1] else $('input[name=pwd]').value
+    QR.reset()
     (ta = $ 'textarea', qr).value = text
     QR.cooldown() if conf['Cooldown']
     QR.foo()
@@ -1258,8 +1255,14 @@ QR =
       $.set "cooldown/#{g.BOARD}", cooldown
       QR.cooldown()
   reset: ->
-    $('[name=spoiler]', QR.qr)?.checked = false unless conf['Remember Spoiler']
-    $('textarea', QR.qr).value = ''
+    {qr} = QR
+    c = d.cookie
+    $('[name=name]', qr).value  = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
+    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
+    $('[name=pwd]', qr).value   = if m = c.match(/4chan_pass=([^;]+)/)  then decodeURIComponent m[1] else $('input[name=pwd]').value
+    $('[name=sub]', qr).value = ''
+    $('[name=spoiler]', qr)?.checked = false unless conf['Remember Spoiler']
+    $('textarea', qr).value = ''
   submit: (e) ->
     {qr} = QR
     #XXX e is undefined if method is called explicitly, eg, from auto posting
