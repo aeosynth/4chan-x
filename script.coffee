@@ -1276,9 +1276,9 @@ QR =
         e.preventDefault()
       return
     $('.error', qr).textContent = ''
-    if e and (el = $('#recaptcha_response_field', qr)).value
+    if (el = $ '#recaptcha_response_field', qr).value
       QR.captchaPush el
-    if not captcha = QR.captchaShift()
+    unless captcha = QR.captchaShift()
       alert 'You forgot to type in the verification.'
       e?.preventDefault()
       return
