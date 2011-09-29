@@ -1186,7 +1186,7 @@ QR =
     $('[name=name]', qr).value  = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
     $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
     $('[name=pwd]', qr).value   = if m = c.match(/4chan_pass=([^;]+)/)  then decodeURIComponent m[1] else $('input[name=pwd]').value
-    $('textarea', qr).value = text
+    (ta = $ 'textarea', qr).value = text
     QR.cooldown() if conf['Cooldown']
     QR.foo()
     $.bind $('.close', qr), 'click', QR.close
@@ -1195,10 +1195,8 @@ QR =
     QR.captchaImg()
     QR.stats()
     $.add d.body, qr
-    ta = $ 'textarea', qr
     l = text.length
     ta.setSelectionRange l, l
-    ta.focus()
   keydown: (e) ->
     kc = e.keyCode
     v = @value
@@ -1230,7 +1228,6 @@ QR =
     ta.value = v[0...ss] + text + v[ss..]
     i = ss + text.length
     ta.setSelectionRange i, i
-    ta.focus()
     $('[name=resto]', qr).value or= tid
   receive: (data) ->
     $('iframe[name=iframe]').src = 'about:blank'

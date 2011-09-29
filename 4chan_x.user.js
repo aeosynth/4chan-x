@@ -1596,7 +1596,7 @@
       $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
       $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
       $('[name=pwd]', qr).value = (m = c.match(/4chan_pass=([^;]+)/)) ? decodeURIComponent(m[1]) : $('input[name=pwd]').value;
-      $('textarea', qr).value = text;
+      (ta = $('textarea', qr)).value = text;
       if (conf['Cooldown']) {
         QR.cooldown();
       }
@@ -1607,10 +1607,8 @@
       QR.captchaImg();
       QR.stats();
       $.add(d.body, qr);
-      ta = $('textarea', qr);
       l = text.length;
-      ta.setSelectionRange(l, l);
-      return ta.focus();
+      return ta.setSelectionRange(l, l);
     },
     keydown: function(e) {
       var kc, v;
@@ -1654,7 +1652,6 @@
       ta.value = v.slice(0, ss) + text + v.slice(ss);
       i = ss + text.length;
       ta.setSelectionRange(i, i);
-      ta.focus();
       return (_base = $('[name=resto]', qr)).value || (_base.value = tid);
     },
     receive: function(data) {
