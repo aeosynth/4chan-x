@@ -632,7 +632,7 @@
   expandComment = {
     init: function() {
       var a, _i, _len, _ref, _results;
-      _ref = $$('span.abbr a');
+      _ref = $$('.abbr a');
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         a = _ref[_i];
@@ -696,7 +696,7 @@
   expandThread = {
     init: function() {
       var a, span, _i, _len, _ref, _results;
-      _ref = $$('span.omittedposts');
+      _ref = $$('.omittedposts');
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         span = _ref[_i];
@@ -803,7 +803,7 @@
     init: function() {
       return g.callbacks.push(function(root) {
         var a, dd, id, reply;
-        if (!(dd = $('td.doubledash', root))) {
+        if (!(dd = $('.doubledash', root))) {
           return;
         }
         dd.className = 'replyhider';
@@ -845,8 +845,8 @@
       table = reply.parentNode.parentNode.parentNode;
       table.hidden = true;
       if (conf['Show Stubs']) {
-        name = $('span.commentpostername', reply).textContent;
-        trip = ((_ref = $('span.postertrip', reply)) != null ? _ref.textContent : void 0) || '';
+        name = $('.commentpostername', reply).textContent;
+        trip = ((_ref = $('.postertrip', reply)) != null ? _ref.textContent : void 0) || '';
         a = $.el('a', {
           textContent: "[ + ] " + name + " " + trip
         });
@@ -1586,17 +1586,14 @@
       }
     },
     dialog: function(text, tid) {
-      var c, l, m, qr, ta;
+      var l, qr, ta;
       if (text == null) {
         text = '';
       }
       tid || (tid = g.THREAD_ID || '');
       QR.qr = qr = ui.dialog('qr', 'top: 0; right: 0;', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=qr_stats></span>    </div>    <div class=autohide>      <span class=wat><img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC></span>      <input form=qr_form placeholder=Name name=name>      <input form=qr_form placeholder=Email name=email>      <input form=qr_form placeholder=Subject name=sub>      <ul id=files></ul>      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/" + g.BOARD + "/post target=iframe id=qr_form>        <textarea placeholder=Comment name=com></textarea>        <div hidden>          <input name=pwd>          <input name=mode value=regist>          <input name=recaptcha_challenge_field id=challenge>          <input name=recaptcha_response_field id=response>        </div>        <div id=captcha>          <div><img></div>          <input id=recaptcha_response_field autocomplete=off>        </div>        <div>          <button>Submit</button>          " + (g.REPLY ? "<label>[<input type=checkbox id=autopost title=autopost> Autopost]</label>" : '') + "          <input form=qr_form placeholder=Thread name=resto value=" + tid + " " + (g.REPLY ? 'hidden' : '') + ">          " + QR.spoiler + "        </div>      </form>    </div>    <a class=error></a>    ");
-      c = d.cookie;
-      $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
-      $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
-      $('[name=pwd]', qr).value = (m = c.match(/4chan_pass=([^;]+)/)) ? decodeURIComponent(m[1]) : $('input[name=pwd]').value;
-      $('textarea', qr).value = text;
+      QR.reset();
+      (ta = $('textarea', qr)).value = text;
       if (conf['Cooldown']) {
         QR.cooldown();
       }
@@ -1607,10 +1604,8 @@
       QR.captchaImg();
       QR.stats();
       $.add(d.body, qr);
-      ta = $('textarea', qr);
       l = text.length;
-      ta.setSelectionRange(l, l);
-      return ta.focus();
+      return ta.setSelectionRange(l, l);
     },
     keydown: function(e) {
       var kc, v;
@@ -1654,11 +1649,10 @@
       ta.value = v.slice(0, ss) + text + v.slice(ss);
       i = ss + text.length;
       ta.setSelectionRange(i, i);
-      ta.focus();
       return (_base = $('[name=resto]', qr)).value || (_base.value = tid);
     },
     receive: function(data) {
-      var cooldown, href, qr, row, textContent, _ref, _ref2;
+      var captcha, cooldown, href, qr, row, textContent, _ref, _ref2;
       $('iframe[name=iframe]').src = 'about:blank';
       qr = QR.qr;
       row = (_ref = $('#files input[form]', qr)) != null ? _ref.parentNode : void 0;
@@ -1670,14 +1664,19 @@
       }
       if (textContent) {
         $.extend($('a.error', qr), data);
+        captcha = $('#recaptcha_response_field', qr).value || QR.captchaShift();
         if (textContent === 'Error: Duplicate file entry detected.') {
           if (row) {
             $.rm(row);
           }
           QR.stats();
-          setTimeout(QR.submit, 1000);
+          if (captcha) {
+            setTimeout(QR.submit, 1000);
+          }
         } else if (textContent === 'You seem to have mistyped the verification.') {
-          setTimeout(QR.submit, 1000);
+          if (captcha) {
+            setTimeout(QR.submit, 1000);
+          }
         }
         return;
       }
@@ -1697,13 +1696,19 @@
       }
     },
     reset: function() {
-      var _ref;
+      var c, m, qr, _ref;
+      qr = QR.qr;
+      c = d.cookie;
+      $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
+      $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
+      $('[name=pwd]', qr).value = (m = c.match(/4chan_pass=([^;]+)/)) ? decodeURIComponent(m[1]) : $('input[name=pwd]').value;
+      $('[name=sub]', qr).value = '';
       if (!conf['Remember Spoiler']) {
-        if ((_ref = $('[name=spoiler]', QR.qr)) != null) {
+        if ((_ref = $('[name=spoiler]', qr)) != null) {
           _ref.checked = false;
         }
       }
-      return $('textarea', QR.qr).value = '';
+      return $('textarea', qr).value = '';
     },
     submit: function(e) {
       var captcha, challenge, el, id, input, op, qr, response;
@@ -1721,7 +1726,7 @@
         return;
       }
       $('.error', qr).textContent = '';
-      if (e && (el = $('#recaptcha_response_field', qr)).value) {
+      if ((el = $('#recaptcha_response_field', qr)).value) {
         QR.captchaPush(el);
       }
       if (!(captcha = QR.captchaShift())) {
@@ -1881,8 +1886,8 @@
         }
         num += $$('table', thread).length;
         text = num === 1 ? "1 reply" : "" + num + " replies";
-        name = $('span.postername', thread).textContent;
-        trip = ((_ref = $('span.postername + span.postertrip', thread)) != null ? _ref.textContent : void 0) || '';
+        name = $('.postername', thread).textContent;
+        trip = ((_ref = $('.postername + .postertrip', thread)) != null ? _ref.textContent : void 0) || '';
         a = $.el('a', {
           textContent: "[ + ] " + name + trip + " (" + text + ")"
         });
@@ -2163,9 +2168,9 @@
     init: function() {
       return g.callbacks.push(function(root) {
         var name, trip;
-        name = $('span.commentpostername, span.postername', root);
+        name = $('.commentpostername, .postername', root);
         name.textContent = 'Anonymous';
-        if (trip = $('span.postertrip', root)) {
+        if (trip = $('.postertrip', root)) {
           if (trip.parentNode.nodeName === 'A') {
             return $.rm(trip.parentNode);
           } else {
@@ -2205,7 +2210,7 @@
         if (root.className === 'inline') {
           return;
         }
-        if (span = $('span.filesize', root)) {
+        if (span = $('.filesize', root)) {
           suffix = $('a', span).href;
           _ref = sauce.prefixes;
           _results = [];
@@ -2336,11 +2341,11 @@
   };
   getTitle = function(thread) {
     var el, span;
-    el = $('span.filetitle', thread);
+    el = $('.filetitle', thread);
     if (!el.textContent) {
       el = $('blockquote', thread);
       if (!el.textContent) {
-        el = $('span.postername', thread);
+        el = $('.postername', thread);
       }
     }
     span = $.el('span', {
@@ -2681,7 +2686,7 @@
       return g.callbacks.push(unread.node);
     },
     node: function(root) {
-      if (root.className) {
+      if (root.hidden || root.className) {
         return;
       }
       unread.replies.push(root);
@@ -2941,7 +2946,7 @@
         src: a.href
       });
       if (a.parentNode.className !== 'op') {
-        filesize = $('span.filesize', a.parentNode);
+        filesize = $('.filesize', a.parentNode);
         _ref = filesize.textContent.match(/(\d+)x/), _ = _ref[0], max = _ref[1];
         img.style.maxWidth = "-moz-calc(" + max + "px)";
       }
@@ -3066,6 +3071,9 @@
       if (conf['Filter']) {
         filter.init();
       }
+      if (conf['Reply Hiding']) {
+        replyHiding.init();
+      }
       if (conf['Image Expansion']) {
         imgExpand.init();
       }
@@ -3086,9 +3094,6 @@
       }
       if (conf['Image Hover']) {
         imgHover.init();
-      }
-      if (conf['Reply Hiding']) {
-        replyHiding.init();
       }
       if (conf['Quick Reply']) {
         QR.init();
@@ -3134,11 +3139,11 @@
           nav.init();
         }
       } else {
-        if (conf['Index Navigation']) {
-          nav.init();
-        }
         if (conf['Thread Hiding']) {
           threadHiding.init();
+        }
+        if (conf['Index Navigation']) {
+          nav.init();
         }
         if (conf['Thread Expansion']) {
           expandThread.init();

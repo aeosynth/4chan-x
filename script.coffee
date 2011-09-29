@@ -439,7 +439,7 @@ filter =
 
 expandComment =
   init: ->
-    for a in $$ 'span.abbr a'
+    for a in $$ '.abbr a'
       $.bind a, 'click', expandComment.expand
   expand: (e) ->
     e.preventDefault()
@@ -480,7 +480,7 @@ expandComment =
 
 expandThread =
   init: ->
-    for span in $$ 'span.omittedposts'
+    for span in $$ '.omittedposts'
       a = $.el 'a',
         textContent: "+ #{span.textContent}"
         className: 'omittedposts'
@@ -555,7 +555,7 @@ expandThread =
 replyHiding =
   init: ->
     g.callbacks.push (root) ->
-      return unless dd = $ 'td.doubledash', root
+      return unless dd = $ '.doubledash', root
       dd.className = 'replyhider'
       a = $.el 'a',
         textContent: '[ - ]'
@@ -591,8 +591,8 @@ replyHiding =
     table.hidden = true
 
     if conf['Show Stubs']
-      name = $('span.commentpostername', reply).textContent
-      trip = $('span.postertrip', reply)?.textContent or ''
+      name = $('.commentpostername', reply).textContent
+      trip = $('.postertrip', reply)?.textContent or ''
       a = $.el 'a',
         textContent: "[ + ] #{name} #{trip}"
       $.bind a, 'click', replyHiding.cb.show
@@ -1182,11 +1182,8 @@ QR =
     <a class=error></a>
     "
     #XXX use dom methods to set values instead of injecting raw user input into your html -_-;
-    c = d.cookie
-    $('[name=name]', qr).value  = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
-    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
-    $('[name=pwd]', qr).value   = if m = c.match(/4chan_pass=([^;]+)/)  then decodeURIComponent m[1] else $('input[name=pwd]').value
-    $('textarea', qr).value = text
+    QR.reset()
+    (ta = $ 'textarea', qr).value = text
     QR.cooldown() if conf['Cooldown']
     QR.foo()
     $.bind $('.close', qr), 'click', QR.close
@@ -1195,10 +1192,8 @@ QR =
     QR.captchaImg()
     QR.stats()
     $.add d.body, qr
-    ta = $ 'textarea', qr
     l = text.length
     ta.setSelectionRange l, l
-    ta.focus()
   keydown: (e) ->
     kc = e.keyCode
     v = @value
@@ -1230,7 +1225,6 @@ QR =
     ta.value = v[0...ss] + text + v[ss..]
     i = ss + text.length
     ta.setSelectionRange i, i
-    ta.focus()
     $('[name=resto]', qr).value or= tid
   receive: (data) ->
     $('iframe[name=iframe]').src = 'about:blank'
@@ -1243,12 +1237,13 @@ QR =
       return
     if textContent
       $.extend $('a.error', qr), data
+      captcha = $('#recaptcha_response_field', qr).value or QR.captchaShift()
       if textContent is 'Error: Duplicate file entry detected.'
         $.rm row if row
         QR.stats()
-        setTimeout QR.submit, 1000
+        setTimeout QR.submit, 1000 if captcha
       else if textContent is 'You seem to have mistyped the verification.'
-        setTimeout QR.submit, 1000
+        setTimeout QR.submit, 1000 if captcha
       return
     $.rm row if row
     QR.stats()
@@ -1261,8 +1256,14 @@ QR =
       $.set "cooldown/#{g.BOARD}", cooldown
       QR.cooldown()
   reset: ->
-    $('[name=spoiler]', QR.qr)?.checked = false unless conf['Remember Spoiler']
-    $('textarea', QR.qr).value = ''
+    {qr} = QR
+    c = d.cookie
+    $('[name=name]', qr).value  = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
+    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
+    $('[name=pwd]', qr).value   = if m = c.match(/4chan_pass=([^;]+)/)  then decodeURIComponent m[1] else $('input[name=pwd]').value
+    $('[name=sub]', qr).value = ''
+    $('[name=spoiler]', qr)?.checked = false unless conf['Remember Spoiler']
+    $('textarea', qr).value = ''
   submit: (e) ->
     {qr} = QR
     #XXX e is undefined if method is called explicitly, eg, from auto posting
@@ -1276,9 +1277,9 @@ QR =
         e.preventDefault()
       return
     $('.error', qr).textContent = ''
-    if e and (el = $('#recaptcha_response_field', qr)).value
+    if (el = $ '#recaptcha_response_field', qr).value
       QR.captchaPush el
-    if not captcha = QR.captchaShift()
+    unless captcha = QR.captchaShift()
       alert 'You forgot to type in the verification.'
       e?.preventDefault()
       return
@@ -1396,8 +1397,8 @@ threadHiding =
         num = 0
       num += $$('table', thread).length
       text = if num is 1 then "1 reply" else "#{num} replies"
-      name = $('span.postername', thread).textContent
-      trip = $('span.postername + span.postertrip', thread)?.textContent or ''
+      name = $('.postername', thread).textContent
+      trip = $('.postername + .postertrip', thread)?.textContent or ''
 
       a = $.el 'a',
         textContent: "[ + ] #{name}#{trip} (#{text})"
@@ -1635,9 +1636,9 @@ watcher =
 anonymize =
   init: ->
     g.callbacks.push (root) ->
-      name = $ 'span.commentpostername, span.postername', root
+      name = $ '.commentpostername, .postername', root
       name.textContent = 'Anonymous'
-      if trip = $ 'span.postertrip', root
+      if trip = $ '.postertrip', root
         if trip.parentNode.nodeName is 'A'
           $.rm trip.parentNode
         else
@@ -1649,7 +1650,7 @@ sauce =
     sauce.names = (prefix.match(/(\w+)\./)[1] for prefix in sauce.prefixes)
     g.callbacks.push (root) ->
       return if root.className is 'inline'
-      if span = $ 'span.filesize', root
+      if span = $ '.filesize', root
         suffix = $('a', span).href
         for prefix, i in sauce.prefixes
           link = $.el 'a',
@@ -1734,11 +1735,11 @@ Time =
     y: -> Time.date.getFullYear() - 2000
 
 getTitle = (thread) ->
-  el = $ 'span.filetitle', thread
+  el = $ '.filetitle', thread
   if not el.textContent
     el = $ 'blockquote', thread
     if not el.textContent
-      el = $ 'span.postername', thread
+      el = $ '.postername', thread
   span = $.el 'span', innerHTML: el.innerHTML.replace /<br>/g, ' '
   "/#{g.BOARD}/ - #{span.textContent}"
 
@@ -1956,7 +1957,7 @@ unread =
     g.callbacks.push unread.node
 
   node: (root) ->
-    return if root.className
+    return if root.hidden or root.className
     unread.replies.push root
     unread.updateTitle()
     Favicon.update()
@@ -2112,7 +2113,7 @@ imgExpand =
     img = $.el 'img',
       src: a.href
     unless a.parentNode.className is 'op'
-      filesize = $ 'span.filesize', a.parentNode
+      filesize = $ '.filesize', a.parentNode
       [_, max] = filesize.textContent.match /(\d+)x/
       img.style.maxWidth = "-moz-calc(#{max}px)"
     $.bind img, 'error', imgExpand.error
@@ -2282,6 +2283,9 @@ Main =
     if conf['Filter']
       filter.init()
 
+    if conf['Reply Hiding']
+      replyHiding.init()
+
     if conf['Image Expansion']
       imgExpand.init()
 
@@ -2302,9 +2306,6 @@ Main =
 
     if conf['Image Hover']
       imgHover.init()
-
-    if conf['Reply Hiding']
-      replyHiding.init()
 
     if conf['Quick Reply']
       QR.init()
@@ -2350,11 +2351,11 @@ Main =
         nav.init()
 
     else #not reply
-      if conf['Index Navigation']
-        nav.init()
-
       if conf['Thread Hiding']
         threadHiding.init()
+
+      if conf['Index Navigation']
+        nav.init()
 
       if conf['Thread Expansion']
         expandThread.init()
