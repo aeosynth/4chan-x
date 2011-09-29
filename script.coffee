@@ -1237,12 +1237,13 @@ QR =
       return
     if textContent
       $.extend $('a.error', qr), data
+      captcha = $('#recaptcha_response_field', qr).value or QR.captchaShift()
       if textContent is 'Error: Duplicate file entry detected.'
         $.rm row if row
         QR.stats()
-        setTimeout QR.submit, 1000
+        setTimeout QR.submit, 1000 if captcha
       else if textContent is 'You seem to have mistyped the verification.'
-        setTimeout QR.submit, 1000
+        setTimeout QR.submit, 1000 if captcha
       return
     $.rm row if row
     QR.stats()

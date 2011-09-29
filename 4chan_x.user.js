@@ -1652,7 +1652,7 @@
       return (_base = $('[name=resto]', qr)).value || (_base.value = tid);
     },
     receive: function(data) {
-      var cooldown, href, qr, row, textContent, _ref, _ref2;
+      var captcha, cooldown, href, qr, row, textContent, _ref, _ref2;
       $('iframe[name=iframe]').src = 'about:blank';
       qr = QR.qr;
       row = (_ref = $('#files input[form]', qr)) != null ? _ref.parentNode : void 0;
@@ -1664,14 +1664,19 @@
       }
       if (textContent) {
         $.extend($('a.error', qr), data);
+        captcha = $('#recaptcha_response_field', qr).value || QR.captchaShift();
         if (textContent === 'Error: Duplicate file entry detected.') {
           if (row) {
             $.rm(row);
           }
           QR.stats();
-          setTimeout(QR.submit, 1000);
+          if (captcha) {
+            setTimeout(QR.submit, 1000);
+          }
         } else if (textContent === 'You seem to have mistyped the verification.') {
-          setTimeout(QR.submit, 1000);
+          if (captcha) {
+            setTimeout(QR.submit, 1000);
+          }
         }
         return;
       }
