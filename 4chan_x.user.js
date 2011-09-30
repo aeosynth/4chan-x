@@ -1726,7 +1726,7 @@
         return;
       }
       $('.error', qr).textContent = '';
-      if ((el = $('#recaptcha_response_field', qr)).value) {
+      if (e && (el = $('#recaptcha_response_field', qr)).value) {
         QR.captchaPush(el);
       }
       if (!(captcha = QR.captchaShift())) {
