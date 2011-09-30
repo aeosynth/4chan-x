@@ -1194,6 +1194,7 @@ QR =
     $.add d.body, qr
     l = text.length
     ta.setSelectionRange l, l
+    ta.focus()
   keydown: (e) ->
     kc = e.keyCode
     v = @value
@@ -1225,6 +1226,7 @@ QR =
     ta.value = v[0...ss] + text + v[ss..]
     i = ss + text.length
     ta.setSelectionRange i, i
+    ta.focus()
     $('[name=resto]', qr).value or= tid
   receive: (data) ->
     $('iframe[name=iframe]').src = 'about:blank'

@@ -1605,7 +1605,8 @@
       QR.stats();
       $.add(d.body, qr);
       l = text.length;
-      return ta.setSelectionRange(l, l);
+      ta.setSelectionRange(l, l);
+      return ta.focus();
     },
     keydown: function(e) {
       var kc, v;
@@ -1649,6 +1650,7 @@
       ta.value = v.slice(0, ss) + text + v.slice(ss);
       i = ss + text.length;
       ta.setSelectionRange(i, i);
+      ta.focus();
       return (_base = $('[name=resto]', qr)).value || (_base.value = tid);
     },
     receive: function(data) {
