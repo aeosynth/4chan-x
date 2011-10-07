@@ -151,18 +151,12 @@ ui =
     ui.width  = d.body.clientWidth  - el.offsetWidth
     ui.height = d.body.clientHeight - el.offsetHeight
   drag: (e) ->
-    {el} = ui
-    left = e.clientX - ui.dx
-    if left < 10 then left = '0'
-    else if ui.width - left < 10 then left = null
-    right = if left then null else 0
-    top = e.clientY - ui.dy
-    if top < 10 then top = '0'
-    else if ui.height - top < 10 then top = null
-    bottom = if top then null else 0
-    #using null instead of '' is 4% faster
+    left = if (left = e.clientX - ui.dx) < 10 then 0 else if ui.width  - left < 10 then null else left
+    top  = if (top  = e.clientY - ui.dy) < 10 then 0 else if ui.height - top  < 10 then null else top
+    right  = if left is null then 0 else null
+    bottom = if top  is null then 0 else null
     #these 4 statements are 40% faster than 1 style.cssText
-    {style} = el
+    {style} = ui.el
     style.top    = top
     style.right  = right
     style.bottom = bottom
@@ -172,8 +166,7 @@ ui =
     #var a, b;
     #a = (b = c.b, c).a;
     {el} = ui
-    {id} = el
-    localStorage["#{NAMESPACE}#{id}.position"] = el.style.cssText
+    localStorage["#{NAMESPACE}#{el.id}.position"] = el.style.cssText
     d.removeEventListener 'mousemove', ui.drag, false
     d.removeEventListener 'mouseup',   ui.dragend, false
   hover: (e) ->
