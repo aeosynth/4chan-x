@@ -2022,16 +2022,13 @@
     },
     timeout: function() {
       var n;
-      n = Number(updater.timer.textContent);
-      ++n;
-      if (n === 10) {
-        updater.count.textContent = 'retry';
-        updater.count.className = '';
-        n = 0;
-      }
-      updater.timer.textContent = n;
+      updater.timer.textContent = n = 1 + +updater.timer.textContent;
       if (n === 0) {
         updater.update();
+      } else if (n === 11) {
+        updater.count.textContent = 'retry';
+        updater.count.className = null;
+        updater.updateNow();
       }
       return updater.timeoutID = setTimeout(updater.timeout, 1000);
     },

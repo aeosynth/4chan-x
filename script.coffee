@@ -1522,18 +1522,14 @@ updater =
         scrollTo 0, d.body.scrollHeight
 
   timeout: ->
-    n = Number updater.timer.textContent
-    ++n
-
-    if n is 10
-      updater.count.textContent = 'retry'
-      updater.count.className = ''
-      n = 0
-
-    updater.timer.textContent = n
+    updater.timer.textContent = n = 1 + +updater.timer.textContent
 
     if n is 0
       updater.update()
+    else if n is 11
+      updater.count.textContent = 'retry'
+      updater.count.className = null
+      updater.updateNow()
 
     updater.timeoutID = setTimeout updater.timeout, 1000
 
