@@ -230,33 +230,21 @@
       return ui.height = d.body.clientHeight - el.offsetHeight;
     },
     drag: function(e) {
-      var bottom, el, left, right, style, top;
-      el = ui.el;
-      left = e.clientX - ui.dx;
-      if (left < 10) {
-        left = '0';
-      } else if (ui.width - left < 10) {
-        left = null;
-      }
-      right = left ? null : 0;
-      top = e.clientY - ui.dy;
-      if (top < 10) {
-        top = '0';
-      } else if (ui.height - top < 10) {
-        top = null;
-      }
-      bottom = top ? null : 0;
-      style = el.style;
+      var bottom, left, right, style, top;
+      left = (left = e.clientX - ui.dx) < 10 ? 0 : ui.width - left < 10 ? null : left;
+      top = (top = e.clientY - ui.dy) < 10 ? 0 : ui.height - top < 10 ? null : top;
+      right = left === null ? 0 : null;
+      bottom = top === null ? 0 : null;
+      style = ui.el.style;
       style.top = top;
       style.right = right;
       style.bottom = bottom;
       return style.left = left;
     },
     dragend: function() {
-      var el, id;
+      var el;
       el = ui.el;
-      id = el.id;
-      localStorage["" + NAMESPACE + id + ".position"] = el.style.cssText;
+      localStorage["" + NAMESPACE + el.id + ".position"] = el.style.cssText;
       d.removeEventListener('mousemove', ui.drag, false);
       return d.removeEventListener('mouseup', ui.dragend, false);
     },
@@ -2025,16 +2013,13 @@
     },
     timeout: function() {
       var n;
-      n = Number(updater.timer.textContent);
-      ++n;
-      if (n === 10) {
-        updater.count.textContent = 'retry';
-        updater.count.className = '';
-        n = 0;
-      }
-      updater.timer.textContent = n;
+      updater.timer.textContent = n = 1 + +updater.timer.textContent;
       if (n === 0) {
         updater.update();
+      } else if (n === 11) {
+        updater.count.textContent = 'retry';
+        updater.count.className = null;
+        updater.updateNow();
       }
       return updater.timeoutID = setTimeout(updater.timeout, 1000);
     },
