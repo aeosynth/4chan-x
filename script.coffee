@@ -151,8 +151,20 @@ ui =
     ui.width  = d.body.clientWidth  - el.offsetWidth
     ui.height = d.body.clientHeight - el.offsetHeight
   drag: (e) ->
-    left = if (left = e.clientX - ui.dx) < 10 then 0 else if ui.width  - left < 10 then null else left
-    top  = if (top  = e.clientY - ui.dy) < 10 then 0 else if ui.height - top  < 10 then null else top
+    left =
+      if (left = e.clientX - ui.dx) < 10
+        0
+      else if ui.width - left < 10
+        null
+      else
+        left
+    top =
+      if (top = e.clientY - ui.dy) < 10
+        0
+      else if ui.height - top < 10
+        null
+      else
+        top
     right  = if left is null then 0 else null
     bottom = if top  is null then 0 else null
     #these 4 statements are 40% faster than 1 style.cssText
@@ -1520,7 +1532,8 @@ updater =
         scrollTo 0, d.body.scrollHeight
 
   timeout: ->
-    updater.timer.textContent = n = 1 + +updater.timer.textContent
+    updater.timer.textContent =
+      n = 1 + +updater.timer.textContent
 
     if n is 0
       updater.update()
