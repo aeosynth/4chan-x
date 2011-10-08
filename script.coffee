@@ -658,7 +658,7 @@ keybinds =
       when conf.previousThread
         nav.prev()
       when conf.update
-        updater.update()
+        updater.updateNow()
       when conf.watch
         watcher.toggle thread
       when conf.hide
