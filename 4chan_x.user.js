@@ -852,7 +852,6 @@
     },
     keydown: function(e) {
       var o, range, selEnd, selStart, ta, thread, valEnd, valMid, valStart, value, _ref, _ref2, _ref3;
-      updater.focus = true;
       if (((_ref = e.target.nodeName) === 'TEXTAREA' || _ref === 'INPUT') && !e.altKey && !e.ctrlKey && !(e.keyCode === 27)) {
         return;
       }
@@ -1889,18 +1888,6 @@
   updater = {
     init: function() {
       var checkbox, checked, dialog, html, input, name, title, _i, _len, _ref;
-      if (conf['Scrolling']) {
-        if (conf['Scroll BG']) {
-          updater.focus = true;
-        } else {
-          $.bind(window, 'focus', (function() {
-            return updater.focus = true;
-          }));
-          $.bind(window, 'blur', (function() {
-            return updater.focus = false;
-          }));
-        }
-      }
       html = "<div class=move><span id=count></span> <span id=timer>-" + conf['Interval'] + "</span></div>";
       checkbox = config.updater.checkbox;
       for (name in checkbox) {
@@ -1922,7 +1909,10 @@
           $.bind(input, 'click', function() {
             return conf[this.name] = this.checked;
           });
-          if (input.name === 'Verbose') {
+          if (input.name === 'Scroll BG') {
+            $.bind(input, 'click', updater.cb.scrollBG);
+            updater.cb.scrollBG.call(input);
+          } else if (input.name === 'Verbose') {
             $.bind(input, 'click', updater.cb.verbose);
             updater.cb.verbose.call(input);
           } else if (input.name === 'Auto Update This') {
@@ -1960,6 +1950,21 @@
           return clearTimeout(updater.timeoutID);
         }
       },
+      scrollBG: function() {
+        return updater.scrollBG = this.checked ? function() {
+          return true;
+        } : d.visibilityState ? function() {
+          return !d.hidden;
+        } : d.oVisibilityState ? function() {
+          return !d.oHidden;
+        } : d.mozVisibilityState ? function() {
+          return !d.mozHidden;
+        } : d.webkitVisibilityState ? function() {
+          return !d.webkitHidden;
+        } : function() {
+          return true;
+        };
+      },
       update: function() {
         var arr, body, id, input, replies, reply, scroll, _i, _len, _ref, _ref2;
         if (this.status === 404) {
@@ -1993,7 +1998,7 @@
         while ((reply = replies.pop()) && (reply.id > id)) {
           arr.push(reply.parentNode.parentNode.parentNode);
         }
-        scroll = conf['Scrolling'] && updater.focus && arr.length && (d.body.scrollHeight - d.body.clientHeight - window.scrollY < 20);
+        scroll = conf['Scrolling'] && updater.scrollBG() && arr.length && updater.br.previousElementSibling.getBoundingClientRect().bottom - d.body.clientHeight < 25;
         if (conf['Verbose']) {
           updater.count.textContent = '+' + arr.length;
           if (arr.length === 0) {
@@ -2006,7 +2011,7 @@
           $.before(updater.br, reply);
         }
         if (scroll) {
-          return scrollTo(0, d.body.scrollHeight);
+          return updater.br.previousSibling.scrollIntoView(false);
         }
       }
     },
@@ -2660,7 +2665,6 @@
     },
     scroll: function(e) {
       var bottom, height, i, reply, _len, _ref;
-      updater.focus = true;
       height = d.body.clientHeight;
       _ref = unread.replies;
       for (i = 0, _len = _ref.length; i < _len; i++) {
