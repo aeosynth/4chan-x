@@ -1774,12 +1774,6 @@ quoteBacklink =
         #don't backlink the op
         continue if el.className is 'op' and !conf['OP Backlinks']
         link = a.cloneNode true
-        if conf['Quote Preview']
-          $.bind link, 'mouseover', quotePreview.mouseover
-          $.bind link, 'mousemove', ui.hover
-          $.bind link, 'mouseout',  quotePreview.mouseout
-        if conf['Quote Inline']
-          $.bind link, 'click', quoteInline.toggle
         unless (container = $ '.container', el) and container.parentNode is el
           container = $.el 'span', className: 'container'
           root = $('.reportbutton', el) or $('span[id]', el)
