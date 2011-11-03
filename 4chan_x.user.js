@@ -655,7 +655,7 @@
           quote.pathname = "/" + g.BOARD + "/res/" + threadID;
         }
         if (quote.hash.slice(1) === threadID) {
-          quote.innerHTML += '&nbsp;(OP)';
+          quote.firstChild.data += '\u00a0(OP)';
         }
         if (conf['Quote Preview']) {
           $.bind(quote, 'mouseover', quotePreview.mouseover);
@@ -700,7 +700,7 @@
       switch (a.textContent[0]) {
         case '+':
           if ((_ref = $('.op .container', thread)) != null) {
-            _ref.innerHTML = '';
+            _ref.textContent = '';
           }
           a.textContent = a.textContent.replace('+', 'X Loading...');
           return $.cache(pathname, (function() {
@@ -2454,7 +2454,7 @@
         return;
       }
       if (req.status !== 200) {
-        inline.innerHTML = "" + req.status + " " + req.statusText;
+        inline.textContent = "" + req.status + " " + req.statusText;
         return;
       }
       body = $.el('body', {
@@ -2539,7 +2539,7 @@
           return _results;
         }
       } else {
-        qp.innerHTML = "Loading " + id + "...";
+        qp.textContent = "Loading " + id + "...";
         threadID = this.pathname.split('/').pop() || $.x('ancestor::div[@class="thread"]/div', this).id;
         $.cache(this.pathname, (function() {
           return quotePreview.parse(this, id, threadID);
@@ -2560,7 +2560,7 @@
         return;
       }
       if (req.status !== 200) {
-        qp.innerHTML = "" + req.status + " " + req.statusText;
+        qp.textContent = "" + req.status + " " + req.statusText;
         return;
       }
       body = $.el('body', {
@@ -2595,7 +2595,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           quote = _ref[_i];
-          _results.push(quote.hash.slice(1) === tid ? quote.innerHTML += '&nbsp;(OP)' : void 0);
+          _results.push(quote.hash.slice(1) === tid ? quote.firstChild.data += '\u00a0(OP)' : void 0);
         }
         return _results;
       });
@@ -2609,7 +2609,7 @@
           span = $('span[id]', root);
           a = $.el('a', {
             className: 'reportbutton',
-            innerHTML: '[&nbsp;!&nbsp;]'
+            textContent: '[\u00a0!\u00a0]'
           });
           $.after(span, a);
           $.after(span, $.tn(' '));
@@ -2642,9 +2642,9 @@
       if (root.className) {
         return;
       }
-      threadStats.postcountEl.textContent = ++threadStats.posts;
+      threadStats.postcountEl.firstChild.data = ++threadStats.posts;
       if ($('img[md5]', root)) {
-        threadStats.imagecountEl.textContent = ++threadStats.images;
+        threadStats.imagecountEl.firstChild.data = ++threadStats.images;
         if (threadStats.images > 150) {
           return threadStats.imagecountEl.className = 'error';
         }
@@ -2904,7 +2904,7 @@
         if (/\bfitheight\b/.test(form.className)) {
           $.bind(window, 'resize', imgExpand.resize);
           if (!imgExpand.style) {
-            imgExpand.style = $.addStyle('');
+            imgExpand.style = $.addStyle(' ');
           }
           return imgExpand.resize();
         } else if (imgExpand.style) {
@@ -2984,7 +2984,7 @@
       return $.prepend(form, controls);
     },
     resize: function() {
-      return imgExpand.style.innerHTML = ".fitheight img + img {max-height:" + d.body.clientHeight + "px;}";
+      return imgExpand.style.firstChild.data = ".fitheight img + img {max-height:" + d.body.clientHeight + "px;}";
     }
   };
   firstRun = {

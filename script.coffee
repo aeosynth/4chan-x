@@ -466,7 +466,7 @@ expandComment =
       if quote.getAttribute('href') is quote.hash
         quote.pathname = "/#{g.BOARD}/res/#{threadID}"
       if quote.hash[1..] is threadID
-        quote.innerHTML += '&nbsp;(OP)'
+        quote.firstChild.data += '\u00a0(OP)'
       if conf['Quote Preview']
         $.bind quote, 'mouseover', quotePreview.mouseover
         $.bind quote, 'mousemove', ui.hover
@@ -496,7 +496,7 @@ expandThread =
 
     switch a.textContent[0]
       when '+'
-        $('.op .container', thread)?.innerHTML = ''
+        $('.op .container', thread)?.textContent = ''
         a.textContent = a.textContent.replace '+', 'X Loading...'
         $.cache pathname, (-> expandThread.parse @, pathname, thread, a)
 
@@ -1836,7 +1836,7 @@ quoteInline =
     return unless inline.parentNode
 
     if req.status isnt 200
-      inline.innerHTML = "#{req.status} #{req.statusText}"
+      inline.textContent = "#{req.status} #{req.statusText}"
       return
 
     body = $.el 'body',
@@ -1890,7 +1890,7 @@ quotePreview =
           if quote.hash[1..] is replyID
             quote.className = 'forwardlink'
     else
-      qp.innerHTML = "Loading #{id}..."
+      qp.textContent = "Loading #{id}..."
       threadID = @pathname.split('/').pop() or $.x('ancestor::div[@class="thread"]/div', @).id
       $.cache @pathname, (-> quotePreview.parse @, id, threadID)
       ui.hover e
@@ -1901,7 +1901,7 @@ quotePreview =
     return unless (qp = ui.el) and (qp.innerHTML is "Loading #{id}...")
 
     if req.status isnt 200
-      qp.innerHTML = "#{req.status} #{req.statusText}"
+      qp.textContent = "#{req.status} #{req.statusText}"
       return
 
     body = $.el 'body',
@@ -1924,7 +1924,7 @@ quoteOP =
       tid = g.THREAD_ID or $.x('ancestor::div[contains(@class,"thread")]/div', root).id
       for quote in $$ '.quotelink', root
         if quote.hash[1..] is tid
-          quote.innerHTML += '&nbsp;(OP)'
+          quote.firstChild.data += '\u00a0(OP)'
 
 reportButton =
   init: ->
@@ -1933,7 +1933,7 @@ reportButton =
         span = $ 'span[id]', root
         a = $.el 'a',
           className: 'reportbutton'
-          innerHTML: '[&nbsp;!&nbsp;]'
+          textContent: '[\u00a0!\u00a0]'
         $.after span, a
         $.after span, $.tn(' ')
       $.bind a, 'click', reportButton.report
@@ -1956,9 +1956,9 @@ threadStats =
     g.callbacks.push threadStats.node
   node: (root) ->
     return if root.className
-    threadStats.postcountEl.textContent = ++threadStats.posts
+    threadStats.postcountEl.firstChild.data = ++threadStats.posts
     if $ 'img[md5]', root
-      threadStats.imagecountEl.textContent = ++threadStats.images
+      threadStats.imagecountEl.firstChild.data = ++threadStats.images
       if threadStats.images > 150
         threadStats.imagecountEl.className = 'error'
 
@@ -2125,7 +2125,7 @@ imgExpand =
       if /\bfitheight\b/.test form.className
         $.bind window, 'resize', imgExpand.resize
         unless imgExpand.style
-          imgExpand.style = $.addStyle ''
+          imgExpand.style = $.addStyle ' '
         imgExpand.resize()
       else if imgExpand.style
         $.unbind window, 'resize', imgExpand.resize
@@ -2186,7 +2186,7 @@ imgExpand =
     $.prepend form, controls
 
   resize: ->
-    imgExpand.style.innerHTML = ".fitheight img + img {max-height:#{d.body.clientHeight}px;}"
+    imgExpand.style.firstChild.data = ".fitheight img + img {max-height:#{d.body.clientHeight}px;}"
 
 firstRun =
   init: ->
