@@ -410,7 +410,7 @@
     off: function(el, eventType, handler) {
       return el.removeEventListener(eventType, handler, false);
     },
-    isDST: function() {
+    isDST: function(offset) {
       /*
              http://en.wikipedia.org/wiki/Daylight_saving_time_in_the_United_States
              Since 2007, daylight saving time starts on the second Sunday of March
@@ -418,7 +418,7 @@
              place at 2:00 AM (0200) local time.
           */
       var date, month, sunday;
-      date = new Date();
+      date = new Date(new Date() - (offset - 1) * HOUR);
       month = date.getMonth();
       if (month < 2 || 10 < month) {
         return false;
@@ -2200,7 +2200,7 @@
       var chanOffset;
       Time.foo();
       chanOffset = 5 - new Date().getTimezoneOffset() / 60;
-      if ($.isDST()) {
+      if ($.isDST(chanOffset)) {
         chanOffset--;
       }
       this.parse = Date.parse('10/11/11(Tue)18:53') ? function(node) {
