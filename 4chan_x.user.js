@@ -418,7 +418,7 @@
              place at 2:00 AM (0200) local time.
           */
       var date, month, sunday;
-      date = new Date(new Date() - (offset - 1) * HOUR);
+      date = new Date(new Date() - offset * HOUR);
       month = date.getMonth();
       if (month < 2 || 10 < month) {
         return false;

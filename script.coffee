@@ -292,7 +292,7 @@ $.extend $,
     ###
 
     # check for DST in NY
-    date = new Date new Date() - (offset - 1)*HOUR
+    date = new Date new Date() - offset * HOUR
     month = date.getMonth()
 
     #this is the easy part
