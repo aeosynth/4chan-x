@@ -283,8 +283,7 @@ $.extend $,
     el.addEventListener eventType, handler, false
   off: (el, eventType, handler) ->
     el.removeEventListener eventType, handler, false
-  isDST: ->
-    # XXX this should check for DST in NY
+  isDST: (offset)->
     ###
        http://en.wikipedia.org/wiki/Daylight_saving_time_in_the_United_States
        Since 2007, daylight saving time starts on the second Sunday of March
@@ -292,7 +291,8 @@ $.extend $,
        place at 2:00 AM (0200) local time.
     ###
 
-    date = new Date()
+    # check for DST in NY
+    date = new Date new Date() - offset * HOUR
     month = date.getMonth()
 
     #this is the easy part
@@ -1668,7 +1668,7 @@ Time =
     # GMT -8 is given as +480; would GMT +8 be -480 ?
     chanOffset = 5 - new Date().getTimezoneOffset() / 60
     # 4chan = EST = GMT -5
-    chanOffset-- if $.isDST()
+    chanOffset-- if $.isDST(chanOffset)
 
     @parse =
       if Date.parse '10/11/11(Tue)18:53'
