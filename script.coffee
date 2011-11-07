@@ -2076,7 +2076,7 @@ imgPreloading =
 
   click: ->
     if imgPreloading.on = @checked
-      for thumb in $$ 'img[md5]:last-child'
+      for thumb in $$ '.op > a > img[md5]:last-child, table:not([hidden]) img[md5]:last-child'
         imgPreloading.preload thumb
   node: (root) ->
     return if !imgPreloading.on or root.hidden or !thumb = $ 'img[md5]:last-child', root
@@ -2098,10 +2098,11 @@ imgExpand =
     imgExpand.dialog()
 
   node: (root) ->
-    return if root.hidden or !thumb = $ 'img[md5]', root
+    return unless thumb = $ 'img[md5]', root
     a = thumb.parentNode
     $.on a, 'click', imgExpand.cb.toggle
-    if imgExpand.on and root.className isnt 'inline' then imgExpand.expand a.firstChild
+    if imgExpand.on and !root.hidden and root.className isnt 'inline'
+      imgExpand.expand a.firstChild
   cb:
     toggle: (e) ->
       return if e.shiftKey or e.altKey or e.ctrlKey or e.button isnt 0
@@ -2110,7 +2111,7 @@ imgExpand =
     all: ->
       imgExpand.on = @checked
       if imgExpand.on #expand
-        for thumb in $$ 'img[md5]:not([hidden])'
+        for thumb in $$ '.op > a > img[md5]:last-child, table:not([hidden]) img[md5]:last-child'
           imgExpand.expand thumb
       else #contract
         for thumb in $$ 'img[md5][hidden]'

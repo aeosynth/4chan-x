@@ -2812,7 +2812,7 @@
     click: function() {
       var thumb, _i, _len, _ref, _results;
       if (imgPreloading.on = this.checked) {
-        _ref = $$('img[md5]:last-child');
+        _ref = $$('.op > a > img[md5]:last-child, table:not([hidden]) img[md5]:last-child');
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           thumb = _ref[_i];
@@ -2855,12 +2855,12 @@
     },
     node: function(root) {
       var a, thumb;
-      if (root.hidden || !(thumb = $('img[md5]', root))) {
+      if (!(thumb = $('img[md5]', root))) {
         return;
       }
       a = thumb.parentNode;
       $.on(a, 'click', imgExpand.cb.toggle);
-      if (imgExpand.on && root.className !== 'inline') {
+      if (imgExpand.on && !root.hidden && root.className !== 'inline') {
         return imgExpand.expand(a.firstChild);
       }
     },
@@ -2876,7 +2876,7 @@
         var thumb, _i, _j, _len, _len2, _ref, _ref2, _results, _results2;
         imgExpand.on = this.checked;
         if (imgExpand.on) {
-          _ref = $$('img[md5]:not([hidden])');
+          _ref = $$('.op > a > img[md5]:last-child, table:not([hidden]) img[md5]:last-child');
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             thumb = _ref[_i];
