@@ -2079,7 +2079,7 @@ imgPreloading =
       for thumb in $$ 'img[md5]:last-child'
         imgPreloading.preload thumb
   node: (root) ->
-    return unless imgPreloading.on and thumb = $ 'img[md5]:last-child', root
+    return if !imgPreloading.on or root.hidden or !thumb = $ 'img[md5]:last-child', root
     imgPreloading.preload thumb
   preload: (thumb) ->
     $.el 'img', src: thumb.parentNode.href
@@ -2098,7 +2098,7 @@ imgExpand =
     imgExpand.dialog()
 
   node: (root) ->
-    return unless thumb = $ 'img[md5]', root
+    return if root.hidden or !thumb = $ 'img[md5]', root
     a = thumb.parentNode
     $.on a, 'click', imgExpand.cb.toggle
     if imgExpand.on and root.className isnt 'inline' then imgExpand.expand a.firstChild

@@ -2823,7 +2823,7 @@
     },
     node: function(root) {
       var thumb;
-      if (!(imgPreloading.on && (thumb = $('img[md5]:last-child', root)))) {
+      if (!imgPreloading.on || root.hidden || !(thumb = $('img[md5]:last-child', root))) {
         return;
       }
       return imgPreloading.preload(thumb);
@@ -2855,7 +2855,7 @@
     },
     node: function(root) {
       var a, thumb;
-      if (!(thumb = $('img[md5]', root))) {
+      if (root.hidden || !(thumb = $('img[md5]', root))) {
         return;
       }
       a = thumb.parentNode;
