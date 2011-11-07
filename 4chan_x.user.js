@@ -2740,7 +2740,6 @@
         break;
       case 'diy':
       case 'g':
-      case 'pol':
       case 'sci':
         url = "http://archive.installgentoo.net/" + g.BOARD + "/thread/" + g.THREAD_ID;
         break;
@@ -2758,6 +2757,7 @@
       case 'o':
       case 'p':
       case 'po':
+      case 'pol':
       case 'soc':
       case 'sp':
       case 'toy':
