@@ -56,7 +56,6 @@ config =
   flavors: [
     'http://iqdb.org/?url='
     'http://google.com/searchbyimage?image_url='
-    '#http://regex.info/exif.cgi?url='
     '#http://tineye.com/search?url='
     '#http://saucenao.com/search.php?db=999&url='
     '#http://imgur.com/upload?url='
@@ -285,16 +284,24 @@ $.extend $,
   off: (el, eventType, handler) ->
     el.removeEventListener eventType, handler, false
   isDST: ->
-    # XXX this should check for DST in NY
     ###
-       http://en.wikipedia.org/wiki/Daylight_saving_time_in_the_United_States
-       Since 2007, daylight saving time starts on the second Sunday of March
-       and ends on the first Sunday of November, with all time changes taking
-       place at 2:00 AM (0200) local time.
+      http://en.wikipedia.org/wiki/Eastern_Time_Zone
+      Its UTC time offset is −5 hrs (UTC−05) during standard time and −4
+      hrs (UTC−04) during daylight saving time.
+
+      Since 2007, the local time changes at 02:00 EST to 03:00 EDT on the second
+      Sunday in March and returns at 02:00 EDT to 01:00 EST on the first Sunday
+      in November, in the U.S. as well as in Canada.
+
+      0200 EST (UTC-05) = 0700 UTC
+      0200 EDT (UTC-04) = 0600 UTC
     ###
 
-    date = new Date()
-    month = date.getMonth()
+    D = new Date()
+    date  = D.getUTCDate()
+    day   = D.getUTCDay()
+    hours = D.getUTCHours()
+    month = D.getUTCMonth()
 
     #this is the easy part
     if month < 2 or 10 < month
@@ -304,7 +311,7 @@ $.extend $,
 
     # (sunday's date) = (today's date) - (number of days past sunday)
     # date is not zero-indexed
-    sunday = date.getDate() - date.getDay()
+    sunday = date - day
 
     if month is 2
       #before second sunday
@@ -312,8 +319,8 @@ $.extend $,
         return false
 
       #during second sunday
-      if sunday < 15 and date.getDay() is 0
-        if date.getHours() < 1
+      if sunday < 15 and day is 0
+        if hours < 7
           return false
         return true
 
@@ -326,8 +333,8 @@ $.extend $,
       return true
 
     # during first sunday
-    if sunday < 8 and date.getDay() is 0
-      if date.getHours() < 1
+    if sunday < 8 and day is 0
+      if hours < 6
         return true
       return false
 
@@ -1648,8 +1655,9 @@ sauce =
     sauce.prefixes = conf['flavors'].match /^[^#].+$/gm
     sauce.names = sauce.prefixes.map (prefix) -> prefix.match(/(\w+)\./)[1]
     g.callbacks.push (root) ->
-      return if root.className is 'inline' or not span = $ '.filesize', root
-      suffix = $('a', span).href
+      return if root.className is 'inline' or not thumb = $ 'img[md5]', root
+      span = $ '.filesize', root
+      suffix = thumb.src
       for prefix, i in sauce.prefixes
         link = $.el 'a',
           textContent: sauce.names[i]
@@ -2038,9 +2046,7 @@ redirect = ->
       url = "http://archive.foolz.us/#{g.BOARD}/thread/#{g.THREAD_ID}"
     when 'lit'
       url = "http://archive.gentoomen.org/cgi-board.pl/#{g.BOARD}/thread/#{g.THREAD_ID}"
-    when 'diy', 'g', 'sci'
-      url = "http://archive.installgentoo.net/#{g.BOARD}/thread/#{g.THREAD_ID}"
-    when '3', 'adv', 'an', 'ck', 'co', 'fa', 'fit', 'int', 'k', 'mu', 'n', 'o', 'p', 'po', 'pol', 'soc', 'sp', 'toy', 'trv', 'v', 'vp', 'x'
+    when '3', 'adv', 'an', 'ck', 'co', 'diy', 'fa', 'fit', 'int', 'k', 'mu', 'n', 'o', 'p', 'po', 'pol', 'soc', 'sp', 'toy', 'trv', 'v', 'vp', 'x'
       url = "http://archive.no-ip.org/#{g.BOARD}/thread/#{g.THREAD_ID}"
     else
       url = "http://boards.4chan.org/#{g.BOARD}"
