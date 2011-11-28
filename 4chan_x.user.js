@@ -1618,6 +1618,9 @@
         if (e) alert('You forgot to type in the verification.');
         return;
       }
+      o.recaptcha_challenge_field = captcha.challenge;
+      o.recaptcha_response_field = captcha.response;
+      Post.stats();
       if (img) {
         img.dataset.submit = true;
         if (g.XHR2) {
@@ -1626,9 +1629,6 @@
           $.add(form, $('input', img.parentNode));
         }
       }
-      o.recaptcha_challenge_field = captcha.challenge;
-      o.recaptcha_response_field = captcha.response;
-      Post.stats();
       Post.sage = post.email === 'sage';
       if (g.XHR2) {
         o.to = 'sys';
@@ -1734,7 +1734,10 @@
         }
         return;
       }
-      if (img = $('img[data-submit]', qr)) $.rm(img.parentNode);
+      if (img = $('img[data-submit]', qr)) {
+        $.rm(img.parentNode);
+        Post.stats();
+      }
       if (conf['Persistent QR'] || $('#items img[src]', qr)) {
         $('textarea', qr).value = '';
       } else {

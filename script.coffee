@@ -1281,6 +1281,9 @@ Post =
     unless captcha = Post.captchaGet()
       alert 'You forgot to type in the verification.' if e
       return
+    o.recaptcha_challenge_field = captcha.challenge
+    o.recaptcha_response_field  = captcha.response
+    Post.stats()
 
     if img
       img.dataset.submit = true
@@ -1288,10 +1291,6 @@ Post =
         o.upfile = atob img.src.split(',')[1]
       else
         $.add form, $('input', img.parentNode)
-
-    o.recaptcha_challenge_field = captcha.challenge
-    o.recaptcha_response_field  = captcha.response
-    Post.stats()
 
     Post.sage = post.email is 'sage'
 
@@ -1385,6 +1384,7 @@ Post =
       return
     if img = $ 'img[data-submit]', qr
       $.rm img.parentNode
+      Post.stats()
     if conf['Persistent QR'] or $('#items img[src]', qr)
       $('textarea', qr).value = ''
     else
