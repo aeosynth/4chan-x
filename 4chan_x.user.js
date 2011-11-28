@@ -1636,7 +1636,7 @@
           $.add(form, $('input', img.parentNode));
         }
       }
-      Post.sage = post.email === 'sage';
+      Post.sage = o.email === 'sage';
       if (g.XHR2) {
         o.to = 'sys';
         postMessage(o, '*');

@@ -1302,7 +1302,7 @@ Post =
       else
         $.add form, $('input', img.parentNode)
 
-    Post.sage = post.email is 'sage'
+    Post.sage = o.email is 'sage'
 
     if g.XHR2
       o.to = 'sys'
