@@ -1985,7 +1985,7 @@ quotePreview =
   mouseover: (e) ->
     qp = ui.el = $.el 'div',
       id: 'qp'
-      className: 'reply'
+      className: 'replyhl'
     $.add d.body, qp
 
     id = @hash[1..]
