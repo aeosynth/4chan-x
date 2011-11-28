@@ -62,7 +62,7 @@
  */
 
 (function() {
-  var $, $$, DAY, Favicon, HOUR, MINUTE, Main, NAMESPACE, QR, SECOND, Time, anonymize, conf, config, d, expandComment, expandThread, filter, firstRun, flatten, g, getTitle, imgExpand, imgGif, imgHover, imgPreloading, key, keybinds, log, nav, options, quoteBacklink, quoteInline, quoteOP, quotePreview, redirect, replyHiding, reportButton, revealSpoilers, sauce, strikethroughQuotes, threadHiding, threadStats, threading, titlePost, ui, unread, updater, val, watcher;
+  var $, $$, DAY, Favicon, HOUR, MINUTE, Main, NAMESPACE, Post, SECOND, Time, anonymize, conf, config, d, expandComment, expandThread, filter, firstRun, flatten, g, getTitle, imgExpand, imgGif, imgHover, imgPreloading, key, keybinds, log, nav, options, quoteBacklink, quoteInline, quoteOP, quotePreview, redirect, replyHiding, reportButton, revealSpoilers, sauce, strikethroughQuotes, threadHiding, threadStats, threading, titlePost, ui, unread, updater, val, watcher;
   var __slice = Array.prototype.slice;
 
   config = {
@@ -319,13 +319,13 @@
       $.add(d.head, script);
       return $.rm(script);
     },
-    ajax: function(url, cb, type) {
+    ajax: function(url, cb, type, data) {
       var r;
       if (type == null) type = 'get';
       r = new XMLHttpRequest();
       r.onload = cb;
       r.open(type, url, true);
-      r.send();
+      r.send(data);
       return r;
     },
     cache: function(url, cb) {
@@ -883,8 +883,8 @@
         case conf.close:
           if (o = $('#overlay')) {
             $.rm(o);
-          } else if (QR.qr) {
-            QR.close();
+          } else if (Post.qr) {
+            Post.rm();
           }
           break;
         case conf.spoiler:
@@ -1378,121 +1378,202 @@
     }
   };
 
-  QR = {
+  Post = {
     init: function() {
-      var holder;
+      var form, holder;
       if (!($('form[name=post]') && $('#recaptcha_response_field'))) return;
-      g.callbacks.push(function(root) {
-        var quote;
-        quote = $('.quotejs + a', root);
-        return $.on(quote, 'click', QR.quote);
-      });
-      $.add(d.body, $.el('iframe', {
-        name: 'iframe',
-        hidden: true
-      }));
-      $('#recaptcha_response_field').id = '';
-      holder = $('#recaptcha_challenge_field_holder');
-      $.on(holder, 'DOMNodeInserted', QR.captchaNode);
-      QR.captchaNode({
-        target: holder.firstChild
-      });
-      QR.accept = $('.rules').textContent.match(/: (.+) /)[1].replace(/\w+/g, function(type) {
-        switch (type) {
-          case 'JPG':
-            return 'image/JPEG';
-          case 'PDF':
-            return 'application/' + type;
-          default:
-            return 'image/' + type;
-        }
-      });
-      QR.MAX_FILE_SIZE = $('input[name=MAX_FILE_SIZE]').value;
-      QR.spoiler = $('.postarea label') ? ' <label>[<input type=checkbox name=spoiler>Spoiler Image?]</label>' : '';
-      if (conf['Persistent QR']) {
-        QR.dialog();
-        $('textarea', QR.qr).blur();
-        if (conf['Auto Hide QR']) $('#autohide', QR.qr).checked = true;
-      }
       if (conf['Cooldown']) {
-        return $.on(window, 'storage', function(e) {
+        $.on(window, 'storage', function(e) {
           if (e.key === ("" + NAMESPACE + "cooldown/" + g.BOARD)) {
-            return QR.cooldown();
+            return Post.cooldown();
           }
         });
       }
-    },
-    attach: function(file) {
-      var box, files;
-      files = $('#files', QR.qr);
-      box = $.el('li', {
-        innerHTML: "<img><a class=x>X</a>"
+      Post.spoiler = $('input[name=spoiler]') ? '<label>[<input name=spoiler type=checkbox>Spoiler Image?]</label>' : '';
+      if (!g.XHR2) {
+        form = Post.form = $.el('form', {
+          enctype: 'multipart/form-data',
+          method: 'post',
+          action: "http://sys.4chan.org/" + g.BOARD + "/post",
+          target: 'iframe',
+          hidden: true,
+          innerHTML: "          <input name=mode>          <input name=resto>          <input name=name>          <input name=email>          <input name=sub>          <textarea name=com></textarea>          <input name=recaptcha_challenge_field>          <input name=recaptcha_response_field>          " + Post.spoiler + "        "
+        });
+        $.add(d.body, form);
+      }
+      $('#recaptcha_response_field').removeAttribute('id');
+      holder = $('#recaptcha_challenge_field_holder');
+      $.on(holder, 'DOMNodeInserted', Post.captchaNode);
+      Post.captchaNode({
+        target: holder.firstChild
       });
-      $.on($('.x', box), 'click', QR.rmThumb);
-      $.add(box, file);
-      $.add(files, box);
-      QR.stats();
-      return QR.foo();
-    },
-    rmThumb: function() {
-      $.rm(this.parentNode);
-      return QR.stats();
+      $.add(d.body, $.el('iframe', {
+        id: 'iframe',
+        hidden: true,
+        src: g.XHR2 ? "http://sys.4chan.org/" + g.BOARD + "/src" : 'about:blank'
+      }));
+      Post.MAX_FILE_SIZE = $('[name=MAX_FILE_SIZE]').value;
+      g.callbacks.push(Post.node);
+      if (g.REPLY && conf['Persistent QR']) {
+        Post.dialog();
+        if (conf['Auto Hide QR']) return $('#autohide', Post.qr).checked = true;
+      }
     },
     captchaNode: function(e) {
-      QR.captcha = {
+      Post.captcha = {
         challenge: e.target.value,
         time: Date.now()
       };
-      return QR.captchaImg();
+      return Post.captchaImg();
     },
     captchaImg: function() {
-      var c, qr;
-      qr = QR.qr;
-      if (!qr) return;
-      c = QR.captcha.challenge;
-      return $('#captcha img', qr).src = "http://www.google.com/recaptcha/api/image?c=" + c;
+      var _ref;
+      return (_ref = $('#captchaImg', Post.qr)) != null ? _ref.src = 'http://www.google.com/recaptcha/api/image?c=' + Post.captcha.challenge : void 0;
     },
-    captchaPush: function(el) {
-      var captcha, captchas;
-      captcha = QR.captcha;
-      captcha.response = el.value;
+    node: function(root) {
+      var link;
+      link = $('.quotejs + a', root);
+      return $.on(link, 'click', Post.quote);
+    },
+    quote: function(e) {
+      var i, id, qr, root, s, selection, ss, ta, text, v, _ref;
+      e.preventDefault();
+      qr = Post.qr || Post.dialog(this);
+      $('#autohide', qr).checked = false;
+      id = this.textContent;
+      text = ">>" + id + "\n";
+      selection = getSelection();
+      root = $.x('ancestor::td', selection.anchorNode);
+      if (id === ((_ref = $('input', root)) != null ? _ref.name : void 0)) {
+        if (s = selection.toString().replace(/\n/g, '\n>')) text += ">" + s + "\n";
+      }
+      ta = $('textarea', qr);
+      v = ta.value;
+      ss = ta.selectionStart;
+      ta.value = v.slice(0, ss) + text + v.slice(ss);
+      i = ss + text.length;
+      ta.setSelectionRange(i, i);
+      return ta.focus();
+    },
+    stats: function() {
+      var captchas, images, qr;
+      qr = Post.qr;
+      images = $$('#items img[src]', qr);
       captchas = $.get('captchas', []);
+      return $('#pstats', qr).textContent = "" + images.length + " / " + captchas.length;
+    },
+    captchaKeydown: function(e) {
+      var kc, v;
+      kc = e.keyCode;
+      v = this.value;
+      if (kc === 8 && !v) {
+        Post.captchaReload();
+        return;
+      }
+      if (e.keyCode === 13 && v) {
+        Post.captchaSet.call(this);
+        return Post.submit();
+      }
+    },
+    dialog: function(link) {
+      var c, m, qr;
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    id=name>        <input placeholder=Email   id=email>        <input placeholder=Subject id=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div><input id=recaptcha_response_field placeholder=Verification autocomplete=off></div>      <div id=fileDiv></div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      c = d.cookie;
+      $('#name', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
+      $('#email', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
+      if (g.REPLY) {
+        Post.resto = g.THREAD_ID;
+      } else {
+        Post.resto = $.x('ancestor::div[@class="thread"]/div', link).id;
+      }
+      Post.captchaImg();
+      Post.file();
+      if (conf['cooldown']) Post.cooldown();
+      $.on($('.close', qr), 'click', Post.rm);
+      $.on($('#submit', qr), 'click', Post.submit);
+      $.on($('#recaptcha_response_field', qr), 'keydown', Post.captchaKeydown);
+      $.on($('img', qr), 'click', Post.captchaReload);
+      Post.stats();
+      $.add(d.body, qr);
+      return qr;
+    },
+    rm: function() {
+      $.rm(Post.qr);
+      return Post.qr = null;
+    },
+    captchaReload: function() {
+      return window.location = 'javascript:Recaptcha.reload()';
+    },
+    captchaSet: function() {
+      var captcha, captchas, response;
+      response = this.value;
+      this.value = '';
+      captchas = $.get('captchas', []);
+      captcha = Post.captcha;
+      captcha.response = response;
       captchas.push(captcha);
       $.set('captchas', captchas);
-      el.value = '';
-      QR.captchaReload();
-      return QR.stats(captchas);
+      Post.captchaReload();
+      return Post.stats();
     },
-    captchaShift: function() {
-      var captcha, captchas, cutoff;
+    captchaGet: function() {
+      var captcha, captchas, cutoff, el, v;
       captchas = $.get('captchas', []);
       cutoff = Date.now() - 5 * HOUR + 5 * MINUTE;
       while (captcha = captchas.shift()) {
         if (captcha.time > cutoff) break;
       }
       $.set('captchas', captchas);
-      QR.stats(captchas);
+      if (!captcha) {
+        el = $('#recaptcha_response_field', Post.qr);
+        if (v = el.value) {
+          el.value = '';
+          captcha = Post.captcha;
+          captcha.response = v;
+          Post.captchaReload();
+        }
+      }
       return captcha;
     },
-    stats: function(captchas) {
-      var images, qr;
-      qr = QR.qr;
-      captchas || (captchas = $.get('captchas', []));
-      images = $$('#files input', qr);
-      return $('#qr_stats', qr).textContent = "" + images.length + " / " + captchas.length;
+    pushFile: function() {
+      var file, items, self, _fn, _i, _len, _ref;
+      self = this;
+      items = $('#items', Post.qr);
+      _ref = this.files;
+      _fn = function(file) {
+        var fr, img, item;
+        if (file.size > Post.MAX_FILE_SIZE) {
+          alert('Error: File too large.');
+          return;
+        }
+        item = $.el('li', {
+          innerHTML: '<a class=close>X</a><img><input type=file>'
+        });
+        $.on($('a', item), 'click', Post.rmFile);
+        $.on($('input', item), 'change', Post.fileChange);
+        $.add(items, item);
+        if (!g.XHR2) $.add(item, self);
+        fr = new FileReader();
+        img = $('img', item);
+        fr.onload = function(e) {
+          return img.src = e.target.result;
+        };
+        return fr.readAsDataURL(file);
+      };
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        _fn(file);
+      }
+      Post.stats();
+      return Post.file();
     },
-    captchaReload: function() {
-      return window.location = 'javascript:Recaptcha.reload()';
-    },
-    change: function(e) {
+    fileChange: function() {
       var file, fr, img;
       file = this.files[0];
-      if (file.size > QR.MAX_FILE_SIZE) {
+      if (file.size > Post.MAX_FILE_SIZE) {
         alert('Error: File too large.');
-        QR.foo(this);
         return;
       }
-      if (this.parentNode.className === 'wat') QR.attach(this);
       fr = new FileReader();
       img = $('img', this.parentNode);
       fr.onload = function(e) {
@@ -1500,222 +1581,191 @@
       };
       return fr.readAsDataURL(file);
     },
-    close: function() {
-      $.rm(QR.qr);
-      return QR.qr = null;
+    file: function() {
+      var fileDiv, multiple;
+      multiple = g.XHR2 ? 'multiple' : '';
+      fileDiv = $('#fileDiv', Post.qr);
+      fileDiv.innerHTML = "<input type=file name=upfile " + multiple + " accept='image/*'>";
+      return $.on($('input', fileDiv), 'change', Post.pushFile);
     },
-    cooldown: function() {
-      var b, cooldown, n, now;
-      if (!(g.REPLY && QR.qr)) return;
-      cooldown = $.get("cooldown/" + g.BOARD, 0);
-      now = Date.now();
-      n = Math.ceil((cooldown - now) / 1000);
-      b = $('form button', QR.qr);
-      if (n > 0) {
-        $.extend(b, {
-          textContent: n,
-          disabled: true
-        });
-        return setTimeout(QR.cooldown, 1000);
-      } else {
-        $.extend(b, {
-          textContent: 'Submit',
-          disabled: false
-        });
-        if ($('#autopost', QR.qr).checked) return QR.submit();
-      }
-    },
-    foo: function(old) {
-      var input;
-      input = $.el('input', {
-        type: 'file',
-        name: 'upfile',
-        accept: QR.accept
-      });
-      $.on(input, 'change', QR.change);
-      if (old) {
-        return $.replace(old, file);
-      } else {
-        return $.add($('.wat', QR.qr), input);
-      }
-    },
-    dialog: function(text, tid) {
-      var l, qr, ta;
-      if (text == null) text = '';
-      tid || (tid = g.THREAD_ID || '');
-      QR.qr = qr = ui.dialog('qr', 'top: 0; right: 0;', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=qr_stats></span>    </div>    <div class=autohide>      <span class=wat><img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC></span>      <input form=qr_form placeholder=Name name=name>      <input form=qr_form placeholder=Email name=email>      <input form=qr_form placeholder=Subject name=sub>      <ul id=files></ul>      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/" + g.BOARD + "/post target=iframe id=qr_form>        <textarea placeholder=Comment name=com></textarea>        <div hidden>          <input name=pwd>          <input name=mode value=regist>          <input name=recaptcha_challenge_field id=challenge>          <input name=recaptcha_response_field id=response>        </div>        <div id=captcha>          <div><img></div>          <input id=recaptcha_response_field autocomplete=off>        </div>        <div>          <button>Submit</button>          " + (g.REPLY ? "<label>[<input type=checkbox id=autopost title=autopost> Autopost]</label>" : '') + "          <input form=qr_form placeholder=Thread name=resto value=" + tid + " " + (g.REPLY ? 'hidden' : '') + ">          " + QR.spoiler + "        </div>      </form>    </div>    <a class=error></a>    ");
-      QR.reset();
-      if (conf['Cooldown']) QR.cooldown();
-      QR.foo();
-      $.on($('.close', qr), 'click', QR.close);
-      $.on($('form', qr), 'submit', QR.submit);
-      $.on($('#recaptcha_response_field', qr), 'keydown', QR.keydown);
-      QR.captchaImg();
-      QR.stats();
-      $.add(d.body, qr);
-      ta = $('textarea', qr);
-      ta.value = text;
-      l = text.length;
-      ta.setSelectionRange(l, l);
-      return ta.focus();
-    },
-    keydown: function(e) {
-      var kc, v;
-      kc = e.keyCode;
-      v = this.value;
-      if (kc === 8 && !v) {
-        QR.captchaReload();
-        return;
-      }
-      if (!(e.keyCode === 13 && v)) return;
-      QR.captchaPush(this);
-      e.preventDefault();
-      return QR.submit();
-    },
-    quote: function(e, blank) {
-      var bq, i, id, qr, s, sel, ss, ta, text, tid, v, _base, _ref, _ref2;
-      if (e != null) e.preventDefault();
-      tid = (_ref = $.x('ancestor::div[@class="thread"]/div', this)) != null ? _ref.id : void 0;
-      id = this.textContent;
-      text = ">>" + id + "\n";
-      sel = getSelection();
-      bq = $.x('ancestor::blockquote', sel.anchorNode);
-      if (id === ((_ref2 = $.x('preceding-sibling::input', bq)) != null ? _ref2.name : void 0)) {
-        if (s = sel.toString().replace(/\n/g, '\n>')) text += ">" + s + "\n";
-      }
-      qr = QR.qr;
-      if (!qr) {
-        QR.dialog(text, tid);
-        return;
-      }
-      $('#autohide', qr).checked = false;
-      ta = $('textarea', qr);
-      v = ta.value;
-      ss = ta.selectionStart;
-      ta.value = v.slice(0, ss) + text + v.slice(ss);
-      i = ss + text.length;
-      ta.setSelectionRange(i, i);
-      ta.focus();
-      return (_base = $('[name=resto]', qr)).value || (_base.value = tid);
-    },
-    receive: function(data) {
-      var cooldown, href, qr, row, textContent, _ref, _ref2;
-      $('iframe[name=iframe]').src = 'about:blank';
-      qr = QR.qr;
-      row = (_ref = $('#files input[form]', qr)) != null ? _ref.parentNode : void 0;
-      data = JSON.parse(data);
-      textContent = data.textContent, href = data.href;
-      if (QR.op) {
-        window.location = href;
-        return;
-      }
-      if (textContent) {
-        $.extend($('a.error', qr), data);
-        if (textContent === 'Error: Duplicate file entry detected.') {
-          if (row) $.rm(row);
-          QR.stats();
-          setTimeout(QR.submit, 1000);
-        } else if (textContent === 'You seem to have mistyped the verification.') {
-          setTimeout(QR.submit, 1000);
-        }
-        return;
-      }
-      if (row) $.rm(row);
-      QR.stats();
-      if (conf['Persistent QR'] || ((_ref2 = $('#files input', qr)) != null ? _ref2.files.length : void 0)) {
-        QR.reset();
-      } else {
-        QR.close();
-      }
-      if (conf['Cooldown']) {
-        cooldown = Date.now() + (QR.sage ? 60 : 30) * SECOND;
-        $.set("cooldown/" + g.BOARD, cooldown);
-        return QR.cooldown();
-      }
-    },
-    reset: function() {
-      var c, m, qr, _ref;
-      qr = QR.qr;
-      c = d.cookie;
-      $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
-      $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
-      $('[name=pwd]', qr).value = (m = c.match(/4chan_pass=([^;]+)/)) ? decodeURIComponent(m[1]) : $('input[name=pwd]').value;
-      $('[name=sub]', qr).value = '';
-      if (!conf['Remember Spoiler']) {
-        if ((_ref = $('[name=spoiler]', qr)) != null) _ref.checked = false;
-      }
-      return $('textarea', qr).value = '';
+    rmFile: function() {
+      return $.rm(this.parentNode);
     },
     submit: function(e) {
-      var captcha, challenge, el, id, input, op, qr, response;
-      qr = QR.qr;
-      if ($('textarea', qr).value || $('#files', qr).childNodes.length) {
-        if ($('form button', qr).disabled) {
-          $('#autopost', qr).checked = true;
-          return;
+      var captcha, el, form, img, name, o, op, qr, value, _i, _len, _ref;
+      qr = Post.qr, form = Post.form;
+      if (!(captcha = Post.captchaGet())) {
+        if (e) alert('You forgot to type in the verification.');
+        return;
+      }
+      o = {
+        resto: Post.resto,
+        mode: 'regist'
+      };
+      _ref = $$('[name]', qr);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        el = _ref[_i];
+        o[el.name] = el.value;
+      }
+      delete o.upfile;
+      img = $('#items img[src]', qr);
+      if (!(o.com || img)) {
+        if (e) alert('Error: No text entered.');
+        return;
+      }
+      if ($('button', qr).disabled) {
+        $('#autopost', qr).checked = true;
+        return;
+      }
+      if (img) {
+        img.dataset.submit = true;
+        if (g.XHR2) {
+          o.upfile = atob(img.src.split(',')[1]);
+        } else {
+          $.add(form, $('input', img.parentNode));
         }
+      }
+      o.recaptcha_challenge_field = captcha.challenge;
+      o.recaptcha_response_field = captcha.response;
+      Post.stats();
+      Post.sage = post.email === 'sage';
+      if (g.XHR2) {
+        o.to = 'sys';
+        postMessage(o, '*');
       } else {
-        if (e) {
-          alert('Error: No text entered.');
-          e.preventDefault();
+        for (name in o) {
+          value = o[name];
+          form[name].value = value;
         }
-        return;
+        form.submit();
       }
-      $('.error', qr).textContent = '';
-      if (e && (el = $('#recaptcha_response_field', qr)).value) QR.captchaPush(el);
-      if (!(captcha = QR.captchaShift())) {
-        alert('You forgot to type in the verification.');
-        if (e != null) e.preventDefault();
-        return;
-      }
-      challenge = captcha.challenge, response = captcha.response;
-      $('#challenge', qr).value = challenge;
-      $('#response', qr).value = response;
       if (conf['Auto Hide QR']) $('#autohide', qr).checked = true;
-      if (input = $('#files input', qr)) input.setAttribute('form', 'qr_form');
-      if (!e) $('#qr_form', qr).submit();
-      QR.sage = /sage/i.test($('[name=email]', qr).value);
-      id = $('input[name=resto]', qr).value;
-      QR.op = !id;
-      if (QR.op) $('[name=email]', qr).value = 'noko';
       if (conf['Thread Watcher'] && conf['Auto Watch Reply']) {
-        op = $.id(id);
+        op = $.id(o.resto);
         if ($('img.favicon', op).src === Favicon.empty) {
           return watcher.watch(op, id);
         }
       }
     },
     sys: function() {
-      var recaptcha;
-      $.off(d, 'DOMContentLoaded', QR.sys);
+      var data, node, recaptcha, _ref;
       if (recaptcha = $('#recaptcha_response_field')) {
-        $.on(recaptcha, 'keydown', QR.keydown);
+        $.on(recaptcha, 'keydown', Post.keydown);
         return;
       }
-      /*
-          http://code.google.com/p/chromium/issues/detail?id=20773
-          Let content scripts see other frames (instead of them being undefined)
-      
-          To access the parent, we have to break out of the sandbox and evaluate
-          in the global context.
-      */
-      return $.globalEval(function() {
-        var data, href, node, textContent, _ref;
-        $ = function(css) {
-          return document.querySelector(css);
+      $.globalEval(function() {
+        /*
+              http://code.google.com/p/chromium/issues/detail?id=20773
+              Let content scripts see other frames (instead of them being undefined)
+        
+              To access the parent, we have to break out of the sandbox and evaluate
+              in the global context.
+        */        return window.addEventListener('message', function(e) {
+          var data;
+          data = e.data;
+          if (data.to === 'Post.message') return parent.postMessage(data, '*');
+        }, false);
+      });
+      if (!g.XHR2) {
+        data = {
+          to: 'Post.message'
         };
         if (node = (_ref = $('table font b')) != null ? _ref.firstChild : void 0) {
-          textContent = node.textContent, href = node.href;
-        } else {
-          node = $('meta');
-          href = node.content.match(/url=(.+)/)[1];
+          data.error = node.textContent;
+        } else if (node = $('meta')) {
+          data.url = node.content.match(/url=(.+)/)[1];
         }
-        data = JSON.stringify({
-          textContent: textContent,
-          href: href
-        });
-        return parent.postMessage(data, '*');
+        postMessage(data, '*');
+        return;
+      }
+      return $.on(window, 'message', function(e) {
+        var bb, fd, i, key, l, to, ui8a, upfile, val;
+        data = e.data;
+        to = data.to;
+        if (to !== 'sys') return;
+        delete data.to;
+        fd = new FormData();
+        upfile = data.upfile;
+        if (upfile) {
+          l = upfile.length;
+          ui8a = new Uint8Array(l);
+          for (i = 0; 0 <= l ? i < l : i > l; 0 <= l ? i++ : i--) {
+            ui8a[i] = upfile.charCodeAt(i);
+          }
+          bb = new (window.MozBlobBuilder || window.WebKitBlobBuilder)();
+          bb.append(ui8a.buffer);
+          data.upfile = bb.getBlob();
+        }
+        for (key in data) {
+          val = data[key];
+          fd.append(key, val);
+        }
+        return $.ajax('post', Post.sysCallback, 'post', fd);
       });
+    },
+    sysCallback: function() {
+      var body, data, node, _ref;
+      data = {
+        to: 'Post.message'
+      };
+      body = $.el('body', {
+        innerHTML: this.responseText
+      });
+      if (node = (_ref = $('table font b', body)) != null ? _ref.firstChild : void 0) {
+        data.error = node.textContent;
+      }
+      return postMessage(data, '*');
+    },
+    message: function(data) {
+      var cooldown, error, img, qr, url;
+      qr = Post.qr;
+      if (!g.XHR2) $('#iframe').src = 'about:blank';
+      error = data.error, url = data.url;
+      if (url) return window.location = url;
+      if (error) {
+        if (error === 'Error: Duplicate file entry detected.') {
+          setTimeout(Post.submit, 1000);
+        } else if (textContent === 'You seem to have mistyped the verification.') {
+          setTimeout(Post.submit, 1000);
+        } else {
+          $('#autohide', qr).checked = false;
+          alert(error);
+        }
+        return;
+      }
+      if (img = $('img[data-submit]', qr)) $.rm(img.parentNode);
+      if (conf['Persistent QR'] || $('#items img[src]', qr)) {
+        $('textarea', qr).value = '';
+      } else {
+        Post.rm();
+      }
+      if (conf['Cooldown']) {
+        cooldown = Date.now() + (Post.sage ? 60 : 30) * SECOND;
+        $.set("cooldown/" + g.BOARD, cooldown);
+        return Post.cooldown();
+      }
+    },
+    cooldown: function() {
+      var b, cooldown, n, now, qr;
+      qr = Post.qr;
+      if (!qr) return;
+      cooldown = $.get("cooldown/" + g.BOARD, 0);
+      now = Date.now();
+      n = Math.ceil((cooldown - now) / 1000);
+      b = $('button', qr);
+      if (n > 0) {
+        $.extend(b, {
+          textContent: n,
+          disabled: true
+        });
+        return setTimeout(Post.cooldown, 1000);
+      } else {
+        $.extend(b, {
+          textContent: 'Submit',
+          disabled: false
+        });
+        if ($('#autosubmit', qr).checked) return Post.submit();
+      }
     }
   };
 
@@ -2936,11 +2986,12 @@
   Main = {
     init: function() {
       var cutoff, hiddenThreads, id, lastChecked, now, pathname, temp, timestamp, _ref;
+      g.XHR2 = typeof FormData !== "undefined" && FormData !== null;
       if (location.hostname === 'sys.4chan.org') {
         if (d.body) {
-          QR.sys();
+          Post.sys();
         } else {
-          $.on(d, 'DOMContentLoaded', QR.sys);
+          $.on(d, 'DOMContentLoaded', Post.sys);
         }
         return;
       }
@@ -3000,12 +3051,13 @@
         return;
       }
       if (!$('#navtopr')) return;
+      Main.globalMessage();
       $.addStyle(Main.css);
       threading.init();
       Favicon.init();
       if (conf['Image Expansion']) imgExpand.init();
       if (conf['Reveal Spoilers'] && $('.postarea label')) revealSpoilers.init();
-      if (conf['Quick Reply']) QR.init();
+      if (conf['Quick Reply']) Post.init();
       if (conf['Thread Watcher']) watcher.init();
       if (conf['Keybinds']) keybinds.init();
       if (g.REPLY) {
@@ -3033,10 +3085,31 @@
       options.init();
       if (!$.get('firstrun')) return firstRun.init();
     },
+    globalMessage: function() {
+      /*
+          http://code.google.com/p/chromium/issues/detail?id=20773
+          Let content scripts see other frames (instead of them being undefined)
+      
+          To access the parent, we have to break out of the sandbox and evaluate
+          in the global context.
+      */      return $.globalEval(function() {
+        return window.addEventListener('message', function(e) {
+          var data;
+          data = e.data;
+          if (data.to === 'sys') {
+            return document.getElementById('iframe').contentWindow.postMessage(data, '*');
+          }
+        }, false);
+      });
+    },
     message: function(e) {
-      var data, origin;
-      origin = e.origin, data = e.data;
-      if (origin === 'http://sys.4chan.org') return QR.receive(data);
+      var data, to;
+      data = e.data;
+      to = data.to;
+      switch (to) {
+        case 'Post.message':
+          return Post.message(data);
+      }
     },
     node: function(e) {
       var target;
@@ -3220,41 +3293,13 @@
       #files > input {\
         display: block;\
       }\
-      #qr {\
-        position: fixed;\
-      }\
-      #qr .close, #qr #autohide {\
-        float: right;\
-      }\
       #qr > .move {\
         text-align: right;\
-      }\
-      #qr .autohide > input {\
-        width: 90px;\
-      }\
-      #qr #autopost {\
-        width: auto;\
-      }\
-      #qr #recaptcha_response_field {\
-        width: 100%;\
-      }\
-      #qr form {\
-        margin: 0;\
-      }\
-      #qr .autohide {\
-        clear: both;\
-      }\
-      #qr:not(:hover) #autohide:checked ~ .autohide {\
-        height: 0;\
-        overflow: hidden;\
       }\
       #qr textarea {\
         border: 0;\
         height: 150px;\
         width: 100%;\
-      }\
-      #qr #captcha {\
-        position: relative;\
       }\
       #qr #files {\
         width: 300px;\
@@ -3262,13 +3307,6 @@
         overflow: auto;\
         margin: 0;\
         padding: 0;\
-      }\
-      #qr #files li {\
-        position: relative;\
-        display: inline-block;\
-        width: 100px;\
-        height: 100px;\
-        overflow: hidden;\
       }\
       #qr #files a {\
         position: absolute;\
@@ -3296,9 +3334,6 @@
         max-height: 100px;\
         max-width:  100px;\
       }\
-      #qr input[name=resto] {\
-        width: 80px;\
-      }\
       #qr button + input[type=file] {\
         position: absolute;\
         opacity: 0;\
@@ -3315,6 +3350,65 @@
         opacity: 0;\
         position: absolute;\
         left: 0;\
+      }\
+\
+      #post {\
+        position: fixed;\
+      }\
+      #post ul {\
+        margin: 0;\
+        padding: 0;\
+        width: 300px;\
+        overflow: auto;\
+        white-space: nowrap;\
+      }\
+      #post li {\
+        display: inline-block;\
+        position: relative;\
+        overflow: hidden;\
+        width: 100px;\
+        height: 100px;\
+      }\
+      #post #items .close {\
+        position: absolute;\
+        color: red;\
+        font-size: 14pt;\
+        z-index: 1;\
+      }\
+      #items img {\
+        max-height: 100px;\
+        max-width: 100px;\
+        position: absolute;\
+      }\
+      #post #foo input {\
+        width: 97px;\
+      }\
+      #post textarea {\
+        border: 0;\
+        margin: 0;\
+        width: 300px;\
+        height: 150px;\
+      }\
+      #post #recaptcha_response_field {\
+        width: 100%;\
+      }\
+      #post #items input {\
+        /* cannot use `display: none;`\
+        https://bugs.webkit.org/show_bug.cgi?id=58208\
+        http://code.google.com/p/chromium/issues/detail?id=78961\
+        */\
+        font-size: 100px;\
+        opacity: 0;\
+      }\
+      #post .close, #post #autohide {\
+        float: right;\
+      }\
+      #post .autohide {\
+        clear: both;\
+      }\
+      #post:not(:hover) #autohide:checked ~ .autohide {\
+        height: 0;\
+        overflow: hidden;\
       }\
     '
   };
