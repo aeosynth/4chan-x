@@ -1453,7 +1453,7 @@
     },
     dialog: function(link) {
       var c, m, qr;
-      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    id=name>        <input placeholder=Email   id=email>        <input placeholder=Subject id=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div><input id=recaptcha_response_field placeholder=Verification autocomplete=off></div>      <div id=fileDiv></div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    id=name>        <input placeholder=Email   id=email>        <input placeholder=Subject id=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
       c = d.cookie;
       $('#name', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
       $('#email', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
@@ -1582,11 +1582,18 @@
       return fr.readAsDataURL(file);
     },
     file: function() {
-      var fileDiv, multiple;
+      var fileSpan, input, multiple;
+      fileSpan = $('#fileSpan', Post.qr);
+      if (input = $('input', fileSpan)) $.rm(input);
+      input = $.el('input', {
+        type: 'file',
+        name: 'upfile',
+        accept: 'image/*'
+      });
+      if (g.XHR2) input.multiple = true;
       multiple = g.XHR2 ? 'multiple' : '';
-      fileDiv = $('#fileDiv', Post.qr);
-      fileDiv.innerHTML = "<input type=file name=upfile " + multiple + " accept='image/*'>";
-      return $.on($('input', fileDiv), 'change', Post.pushFile);
+      $.add(fileSpan, input);
+      return $.on($('input', fileSpan), 'change', Post.pushFile);
     },
     rmFile: function() {
       $.rm(this.parentNode);
@@ -3412,6 +3419,24 @@
       #post:not(:hover) #autohide:checked ~ .autohide {\
         height: 0;\
         overflow: hidden;\
+      }\
+      #post #reholder {\
+        position: relative;\
+      }\
+      #post #fileSpan {\
+        position: absolute;\
+        right: 5px;\
+        top: 5px;\
+        width: 16px;\
+        height: 16px;\
+        overflow: hidden;\
+      }\
+      #fileSpan img {\
+        position: absolute;\
+      }\
+      #fileSpan input {\
+        opacity: 0;\
+        margin: 0;\
       }\
     '
   };

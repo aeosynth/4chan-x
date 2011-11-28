@@ -1111,7 +1111,6 @@ Post =
     $('#pstats', qr).textContent = "captchas: #{captchas.length} / images: #{images.length}"
 
   dialog: (link) ->
-    #<img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>
     qr = Post.qr = ui.dialog 'post', 'top: 0; right: 0', "
     <a class=close>X</a>
     <input type=checkbox id=autohide title=autohide>
@@ -1126,8 +1125,12 @@ Post =
       </div>
       <textarea placeholder=Comment name=com></textarea>
       <div><img id=captchaImg></div>
-      <div><input id=recaptcha_response_field placeholder=Verification autocomplete=off></div>
-      <div id=fileDiv></div>
+      <div id=reholder>
+        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>
+        <span id=fileSpan>
+          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>
+        </span>
+      </div>
       <ul id=items></ul>
       <div>
         <button id=submit>Submit</button>
@@ -1250,10 +1253,17 @@ Post =
     fr.readAsDataURL file
 
   file: ->
+    fileSpan = $ '#fileSpan', Post.qr
+    if input = $ 'input', fileSpan
+      $.rm input
+    input = $.el 'input',
+      type: 'file'
+      name: 'upfile'
+      accept: 'image/*'
+    input.multiple = true if g.XHR2
     multiple = if g.XHR2 then 'multiple' else ''
-    fileDiv = $ '#fileDiv', Post.qr
-    fileDiv.innerHTML = "<input type=file name=upfile #{multiple} accept='image/*'>"
-    $.on $('input', fileDiv), 'change', Post.pushFile
+    $.add fileSpan, input
+    $.on $('input', fileSpan), 'change', Post.pushFile
 
   rmFile: ->
     $.rm @parentNode
@@ -2845,6 +2855,24 @@ Main =
       #post:not(:hover) #autohide:checked ~ .autohide {
         height: 0;
         overflow: hidden;
+      }
+      #post #reholder {
+        position: relative;
+      }
+      #post #fileSpan {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 16px;
+        height: 16px;
+        overflow: hidden;
+      }
+      #fileSpan img {
+        position: absolute;
+      }
+      #fileSpan input {
+        opacity: 0;
+        margin: 0;
       }
     '
 
