@@ -1595,10 +1595,6 @@
     submit: function(e) {
       var captcha, el, form, img, name, o, op, qr, value, _i, _len, _ref;
       qr = Post.qr, form = Post.form;
-      if (!(captcha = Post.captchaGet())) {
-        if (e) alert('You forgot to type in the verification.');
-        return;
-      }
       o = {
         resto: Post.resto,
         mode: 'regist'
@@ -1616,6 +1612,10 @@
       }
       if ($('button', qr).disabled) {
         $('#autosubmit', qr).checked = true;
+        return;
+      }
+      if (!(captcha = Post.captchaGet())) {
+        if (e) alert('You forgot to type in the verification.');
         return;
       }
       if (img) {

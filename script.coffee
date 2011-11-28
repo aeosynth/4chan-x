@@ -1262,10 +1262,6 @@ Post =
   submit: (e) ->
     {qr, form} = Post
 
-    unless captcha = Post.captchaGet()
-      alert 'You forgot to type in the verification.' if e
-      return
-
     o =
       resto: Post.resto
       mode: 'regist'
@@ -1280,6 +1276,10 @@ Post =
 
     if $('button', qr).disabled
       $('#autosubmit', qr).checked = true
+      return
+
+    unless captcha = Post.captchaGet()
+      alert 'You forgot to type in the verification.' if e
       return
 
     if img
