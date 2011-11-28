@@ -1589,7 +1589,8 @@
       return $.on($('input', fileDiv), 'change', Post.pushFile);
     },
     rmFile: function() {
-      return $.rm(this.parentNode);
+      $.rm(this.parentNode);
+      return Post.stats();
     },
     submit: function(e) {
       var captcha, el, form, img, name, o, op, qr, value, _i, _len, _ref;

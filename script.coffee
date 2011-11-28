@@ -1257,6 +1257,7 @@ Post =
 
   rmFile: ->
     $.rm @parentNode
+    Post.stats()
 
   submit: (e) ->
     {qr, form} = Post
