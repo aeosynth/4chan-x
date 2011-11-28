@@ -1108,7 +1108,7 @@ Post =
     {qr} = Post
     images = $$ '#items li', qr
     captchas = $.get 'captchas', []
-    $('#pstats', qr).textContent = "#{images.length} / #{captchas.length}"
+    $('#pstats', qr).textContent = "captchas: #{captchas.length} / images: #{images.length}"
 
   dialog: (link) ->
     #<img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>

@@ -1449,7 +1449,7 @@
       qr = Post.qr;
       images = $$('#items li', qr);
       captchas = $.get('captchas', []);
-      return $('#pstats', qr).textContent = "" + images.length + " / " + captchas.length;
+      return $('#pstats', qr).textContent = "captchas: " + captchas.length + " / images: " + images.length;
     },
     dialog: function(link) {
       var c, m, qr;
