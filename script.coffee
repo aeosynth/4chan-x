@@ -1119,9 +1119,9 @@ Post =
     </div>
     <div class=autohide>
       <div id=foo>
-        <input placeholder=Name    id=name>
-        <input placeholder=Email   id=email>
-        <input placeholder=Subject id=sub>
+        <input placeholder=Name    name=name>
+        <input placeholder=Email   name=email>
+        <input placeholder=Subject name=sub>
       </div>
       <textarea placeholder=Comment name=com></textarea>
       <div><img id=captchaImg></div>
@@ -1141,8 +1141,8 @@ Post =
     "
 
     c = d.cookie
-    $('#name',  qr).value = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
-    $('#email', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
+    $('[name=name]',  qr).value = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
+    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
     if g.REPLY
       Post.resto = g.THREAD_ID
     else
