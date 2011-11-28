@@ -1945,8 +1945,7 @@
           }
         } else if (input.name === 'Interval') {
           $.on(input, 'change', function() {
-            if ((val = parseInt(this.value)) < 15) val = 15;
-            return conf['Interval'] = this.value = val;
+            return conf['Interval'] = this.value = parseInt(this.value) || conf['Interval'];
           });
           $.on(input, 'change', $.cb.value);
         } else if (input.type === 'button') {
