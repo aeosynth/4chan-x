@@ -1458,7 +1458,7 @@
     stats: function() {
       var captchas, images, qr;
       qr = Post.qr;
-      images = $$('#items img[src]', qr);
+      images = $$('#items li', qr);
       captchas = $.get('captchas', []);
       return $('#pstats', qr).textContent = "" + images.length + " / " + captchas.length;
     },
@@ -1614,7 +1614,7 @@
         return;
       }
       if ($('button', qr).disabled) {
-        $('#autopost', qr).checked = true;
+        $('#autosubmit', qr).checked = true;
         return;
       }
       if (img) {
@@ -1725,7 +1725,7 @@
       if (error) {
         if (error === 'Error: Duplicate file entry detected.') {
           setTimeout(Post.submit, 1000);
-        } else if (textContent === 'You seem to have mistyped the verification.') {
+        } else if (error === 'You seem to have mistyped the verification.') {
           setTimeout(Post.submit, 1000);
         } else {
           $('#autohide', qr).checked = false;

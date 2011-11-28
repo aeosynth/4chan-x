@@ -1116,7 +1116,7 @@ Post =
 
   stats: ->
     {qr} = Post
-    images = $$ '#items img[src]', qr
+    images = $$ '#items li', qr
     captchas = $.get 'captchas', []
     $('#pstats', qr).textContent = "#{images.length} / #{captchas.length}"
 
@@ -1278,7 +1278,7 @@ Post =
       return
 
     if $('button', qr).disabled
-      $('#autopost', qr).checked = true
+      $('#autosubmit', qr).checked = true
       return
 
     if img
@@ -1376,7 +1376,7 @@ Post =
     if error
       if error is 'Error: Duplicate file entry detected.'
         setTimeout Post.submit, 1000
-      else if textContent is 'You seem to have mistyped the verification.'
+      else if error is 'You seem to have mistyped the verification.'
         setTimeout Post.submit, 1000
       else
         $('#autohide', qr).checked = false
