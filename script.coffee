@@ -1076,16 +1076,6 @@ Post =
       if conf['Auto Hide QR']
         $('#autohide', Post.qr).checked = true
 
-  captchaNode: (e) ->
-    Post.captcha =
-      challenge: e.target.value
-      time: Date.now()
-    Post.captchaImg()
-
-  captchaImg: ->
-    $('#captchaImg', Post.qr)?.src =
-      'http://www.google.com/recaptcha/api/image?c=' + Post.captcha.challenge
-
   node: (root) ->
     link = $ '.quotejs + a', root
     $.on link, 'click', Post.quote
@@ -1119,16 +1109,6 @@ Post =
     images = $$ '#items li', qr
     captchas = $.get 'captchas', []
     $('#pstats', qr).textContent = "#{images.length} / #{captchas.length}"
-
-  captchaKeydown: (e) ->
-    kc = e.keyCode
-    v = @value
-    if kc is 8 and not v #backspace, empty
-      Post.captchaReload()
-      return
-    if e.keyCode is 13 and v
-      Post.captchaSet.call @
-      Post.submit()
 
   dialog: (link) ->
     #<img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>
@@ -1179,21 +1159,6 @@ Post =
     $.rm Post.qr
     Post.qr = null
 
-  captchaReload: ->
-    window.location = 'javascript:Recaptcha.reload()'
-
-  captchaSet: ->
-    response = @value
-    @value = ''
-
-    captchas = $.get 'captchas', []
-    {captcha} = Post
-    captcha.response = response
-    captchas.push captcha
-    $.set 'captchas', captchas
-    Post.captchaReload()
-    Post.stats()
-
   captchaGet: ->
     captchas = $.get 'captchas', []
     cutoff = Date.now() - 5*HOUR + 5*MINUTE
@@ -1211,6 +1176,41 @@ Post =
         Post.captchaReload()
 
     captcha
+
+  captchaImg: ->
+    $('#captchaImg', Post.qr)?.src =
+      'http://www.google.com/recaptcha/api/image?c=' + Post.captcha.challenge
+
+  captchaKeydown: (e) ->
+    kc = e.keyCode
+    v = @value
+    if kc is 8 and not v #backspace, empty
+      Post.captchaReload()
+      return
+    if e.keyCode is 13 and v
+      Post.captchaSet.call @
+      Post.submit()
+
+  captchaNode: (e) ->
+    Post.captcha =
+      challenge: e.target.value
+      time: Date.now()
+    Post.captchaImg()
+
+  captchaReload: ->
+    window.location = 'javascript:Recaptcha.reload()'
+
+  captchaSet: ->
+    response = @value
+    @value = ''
+
+    captchas = $.get 'captchas', []
+    {captcha} = Post
+    captcha.response = response
+    captchas.push captcha
+    $.set 'captchas', captchas
+    Post.captchaReload()
+    Post.stats()
 
   pushFile: ->
     self = @

@@ -1419,17 +1419,6 @@
         if (conf['Auto Hide QR']) return $('#autohide', Post.qr).checked = true;
       }
     },
-    captchaNode: function(e) {
-      Post.captcha = {
-        challenge: e.target.value,
-        time: Date.now()
-      };
-      return Post.captchaImg();
-    },
-    captchaImg: function() {
-      var _ref;
-      return (_ref = $('#captchaImg', Post.qr)) != null ? _ref.src = 'http://www.google.com/recaptcha/api/image?c=' + Post.captcha.challenge : void 0;
-    },
     node: function(root) {
       var link;
       link = $('.quotejs + a', root);
@@ -1462,19 +1451,6 @@
       captchas = $.get('captchas', []);
       return $('#pstats', qr).textContent = "" + images.length + " / " + captchas.length;
     },
-    captchaKeydown: function(e) {
-      var kc, v;
-      kc = e.keyCode;
-      v = this.value;
-      if (kc === 8 && !v) {
-        Post.captchaReload();
-        return;
-      }
-      if (e.keyCode === 13 && v) {
-        Post.captchaSet.call(this);
-        return Post.submit();
-      }
-    },
     dialog: function(link) {
       var c, m, qr;
       qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    id=name>        <input placeholder=Email   id=email>        <input placeholder=Subject id=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div><input id=recaptcha_response_field placeholder=Verification autocomplete=off></div>      <div id=fileDiv></div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
@@ -1501,21 +1477,6 @@
       $.rm(Post.qr);
       return Post.qr = null;
     },
-    captchaReload: function() {
-      return window.location = 'javascript:Recaptcha.reload()';
-    },
-    captchaSet: function() {
-      var captcha, captchas, response;
-      response = this.value;
-      this.value = '';
-      captchas = $.get('captchas', []);
-      captcha = Post.captcha;
-      captcha.response = response;
-      captchas.push(captcha);
-      $.set('captchas', captchas);
-      Post.captchaReload();
-      return Post.stats();
-    },
     captchaGet: function() {
       var captcha, captchas, cutoff, el, v;
       captchas = $.get('captchas', []);
@@ -1534,6 +1495,45 @@
         }
       }
       return captcha;
+    },
+    captchaImg: function() {
+      var _ref;
+      return (_ref = $('#captchaImg', Post.qr)) != null ? _ref.src = 'http://www.google.com/recaptcha/api/image?c=' + Post.captcha.challenge : void 0;
+    },
+    captchaKeydown: function(e) {
+      var kc, v;
+      kc = e.keyCode;
+      v = this.value;
+      if (kc === 8 && !v) {
+        Post.captchaReload();
+        return;
+      }
+      if (e.keyCode === 13 && v) {
+        Post.captchaSet.call(this);
+        return Post.submit();
+      }
+    },
+    captchaNode: function(e) {
+      Post.captcha = {
+        challenge: e.target.value,
+        time: Date.now()
+      };
+      return Post.captchaImg();
+    },
+    captchaReload: function() {
+      return window.location = 'javascript:Recaptcha.reload()';
+    },
+    captchaSet: function() {
+      var captcha, captchas, response;
+      response = this.value;
+      this.value = '';
+      captchas = $.get('captchas', []);
+      captcha = Post.captcha;
+      captcha.response = response;
+      captchas.push(captcha);
+      $.set('captchas', captchas);
+      Post.captchaReload();
+      return Post.stats();
     },
     pushFile: function() {
       var file, items, self, _fn, _i, _len, _ref;
