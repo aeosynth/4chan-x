@@ -1038,26 +1038,6 @@ Post =
       else
         ''
 
-    if not g.XHR2
-      form = Post.form = $.el 'form',
-        enctype: 'multipart/form-data'
-        method: 'post'
-        action: "http://sys.4chan.org/#{g.BOARD}/post"
-        target: 'iframe'
-        hidden: true
-        innerHTML: "
-          <input name=mode>
-          <input name=resto>
-          <input name=name>
-          <input name=email>
-          <input name=sub>
-          <textarea name=com></textarea>
-          <input name=recaptcha_challenge_field>
-          <input name=recaptcha_response_field>
-          #{Post.spoiler}
-        "
-      $.add d.body, form
-
     $('#recaptcha_response_field').removeAttribute 'id'
     holder = $ '#recaptcha_challenge_field_holder'
     $.on holder, 'DOMNodeInserted', Post.captchaNode
@@ -1113,7 +1093,12 @@ Post =
     $('#pstats', qr).textContent = "captchas: #{captchas.length} / images: #{images.length}"
 
   dialog: (link) ->
+    if g.REPLY
+      resto = g.THREAD_ID
+    else
+      resto = $.x('ancestor::div[@class="thread"]/div', link).id
     hidden = if conf['Character Count'] then '' else 'hidden'
+
     qr = Post.qr = ui.dialog 'post', 'top: 0; right: 0', "
     <a class=close>X</a>
     <input type=checkbox id=autohide title=autohide>
@@ -1121,13 +1106,19 @@ Post =
       <span id=pstats></span>
     </div>
     <div class=autohide>
-      <div id=foo>
-        <input class=inputtext placeholder=Name    name=name>
-        <input class=inputtext placeholder=Email   name=email>
-        <input class=inputtext placeholder=Subject name=sub>
-      </div>
-      <textarea class=inputtext placeholder=Comment name=com></textarea>
-      <div><img id=captchaImg></div>
+      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/#{g.BOARD}/post target=iframe>
+        <input type=hidden name=mode value=regist>
+        <input type=hidden name=resto value=#{resto}>
+        <input type=hidden name=recaptcha_challenge_field>
+        <input type=hidden name=recaptcha_response_field>
+        <div id=foo>
+          <input class=inputtext placeholder=Name    name=name>
+          <input class=inputtext placeholder=Email   name=email>
+          <input class=inputtext placeholder=Subject name=sub>
+        </div>
+        <textarea class=inputtext placeholder=Comment name=com></textarea>
+        <div><img id=captchaImg></div>
+      </form>
       <div id=reholder>
         <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>
         <span id=charCount #{hidden}></span>
@@ -1145,10 +1136,6 @@ Post =
     "
 
     Post.reset()
-    if g.REPLY
-      Post.resto = g.THREAD_ID
-    else
-      Post.resto = $.x('ancestor::div[@class="thread"]/div', link).id
     Post.captchaImg()
     Post.file()
     Post.cooldown() if conf['cooldown']
@@ -1224,6 +1211,9 @@ Post =
   pushFile: ->
     self = @
     items = $ '#items', Post.qr
+    html = '<a class=close>X</a><img>'
+    if g.XHR2
+      html += '<input type=file>'
     for file in @files
       do (file) ->
         if file.size > Post.MAX_FILE_SIZE
@@ -1231,7 +1221,7 @@ Post =
           return
 
         item = $.el 'li',
-          innerHTML: '<a class=close>X</a><img><input type=file>'
+          innerHTML: html
         $.on $('a', item), 'click', Post.rmFile
         $.on $('input', item), 'change', Post.fileChange
         $.add items, item
@@ -1267,7 +1257,6 @@ Post =
       name: 'upfile'
       accept: 'image/*'
     input.multiple = true if g.XHR2
-    multiple = if g.XHR2 then 'multiple' else ''
     $.add fileSpan, input
     $.on $('input', fileSpan), 'change', Post.pushFile
 
@@ -1276,11 +1265,9 @@ Post =
     Post.stats()
 
   submit: (e) ->
-    {qr, form} = Post
+    {qr} = Post
 
-    o =
-      resto: Post.resto
-      mode: 'regist'
+    o = {}
     for el in $$ '[name]', qr
       o[el.name] = el.value
     delete o.upfile
@@ -1297,12 +1284,11 @@ Post =
     unless captcha = Post.captchaGet()
       alert 'You forgot to type in the verification.' if e
       return
-    o.recaptcha_challenge_field = captcha.challenge
-    o.recaptcha_response_field  = captcha.response
     Post.stats()
 
     if img
       img.setAttribute 'data-submit', true #XXX fx - can't use dataset in userscript, wtf?
+      $('input', img.parentNode).form = 'qr_form'
       if g.XHR2
         o.upfile = atob img.src.split(',')[1]
       else
@@ -1310,13 +1296,16 @@ Post =
 
     Post.sage = /sage/i.test o.email
 
+    {challenge, response} = captcha
     if g.XHR2
+      o.recaptcha_challenge_field = challenge
+      o.recaptcha_response_field  = response
       o.to = 'sys'
       postMessage o, '*'
     else
-      for name, value of o
-        form[name].value = value
-      form.submit()
+      form.recaptcha_challenge_field = challenge
+      form.recaptcha_response_field  = response
+      $('form', qr).submit()
 
     if conf['Auto Hide QR']
       $('#autohide', qr).checked = true

@@ -1382,7 +1382,7 @@
 
   Post = {
     init: function() {
-      var form, holder;
+      var holder;
       if (!($('form[name=post]') && $('#recaptcha_response_field'))) return;
       if (conf['Cooldown']) {
         $.on(window, 'storage', function(e) {
@@ -1392,17 +1392,6 @@
         });
       }
       Post.spoiler = $('input[name=spoiler]') ? '<label>[<input name=spoiler type=checkbox>Spoiler Image?]</label>' : '';
-      if (!g.XHR2) {
-        form = Post.form = $.el('form', {
-          enctype: 'multipart/form-data',
-          method: 'post',
-          action: "http://sys.4chan.org/" + g.BOARD + "/post",
-          target: 'iframe',
-          hidden: true,
-          innerHTML: "          <input name=mode>          <input name=resto>          <input name=name>          <input name=email>          <input name=sub>          <textarea name=com></textarea>          <input name=recaptcha_challenge_field>          <input name=recaptcha_response_field>          " + Post.spoiler + "        "
-        });
-        $.add(d.body, form);
-      }
       $('#recaptcha_response_field').removeAttribute('id');
       holder = $('#recaptcha_challenge_field_holder');
       $.on(holder, 'DOMNodeInserted', Post.captchaNode);
@@ -1455,15 +1444,15 @@
       return $('#pstats', qr).textContent = "captchas: " + captchas.length + " / images: " + images.length;
     },
     dialog: function(link) {
-      var hidden, qr;
-      hidden = conf['Character Count'] ? '' : 'hidden';
-      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input class=inputtext placeholder=Name    name=name>        <input class=inputtext placeholder=Email   name=email>        <input class=inputtext placeholder=Subject name=sub>      </div>      <textarea class=inputtext placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount " + hidden + "></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
-      Post.reset();
+      var hidden, qr, resto;
       if (g.REPLY) {
-        Post.resto = g.THREAD_ID;
+        resto = g.THREAD_ID;
       } else {
-        Post.resto = $.x('ancestor::div[@class="thread"]/div', link).id;
+        resto = $.x('ancestor::div[@class="thread"]/div', link).id;
       }
+      hidden = conf['Character Count'] ? '' : 'hidden';
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/" + g.BOARD + "/post target=iframe>        <input type=hidden name=mode value=regist>        <input type=hidden name=resto value=" + resto + ">        <input type=hidden name=recaptcha_challenge_field>        <input type=hidden name=recaptcha_response_field>        <div id=foo>          <input class=inputtext placeholder=Name    name=name>          <input class=inputtext placeholder=Email   name=email>          <input class=inputtext placeholder=Subject name=sub>        </div>        <textarea class=inputtext placeholder=Comment name=com></textarea>        <div><img id=captchaImg></div>      </form>      <div id=reholder>        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount " + hidden + "></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      Post.reset();
       Post.captchaImg();
       Post.file();
       if (conf['cooldown']) Post.cooldown();
@@ -1542,9 +1531,11 @@
       return Post.stats();
     },
     pushFile: function() {
-      var file, items, self, _fn, _i, _len, _ref;
+      var file, html, items, self, _fn, _i, _len, _ref;
       self = this;
       items = $('#items', Post.qr);
+      html = '<a class=close>X</a><img>';
+      if (g.XHR2) html += '<input type=file>';
       _ref = this.files;
       _fn = function(file) {
         var fr, img, item;
@@ -1553,7 +1544,7 @@
           return;
         }
         item = $.el('li', {
-          innerHTML: '<a class=close>X</a><img><input type=file>'
+          innerHTML: html
         });
         $.on($('a', item), 'click', Post.rmFile);
         $.on($('input', item), 'change', Post.fileChange);
@@ -1588,7 +1579,7 @@
       return fr.readAsDataURL(file);
     },
     file: function() {
-      var fileSpan, input, multiple;
+      var fileSpan, input;
       fileSpan = $('#fileSpan', Post.qr);
       if (input = $('input', fileSpan)) $.rm(input);
       input = $.el('input', {
@@ -1597,7 +1588,6 @@
         accept: 'image/*'
       });
       if (g.XHR2) input.multiple = true;
-      multiple = g.XHR2 ? 'multiple' : '';
       $.add(fileSpan, input);
       return $.on($('input', fileSpan), 'change', Post.pushFile);
     },
@@ -1606,12 +1596,9 @@
       return Post.stats();
     },
     submit: function(e) {
-      var captcha, el, form, img, name, o, op, qr, value, _i, _len, _ref;
-      qr = Post.qr, form = Post.form;
-      o = {
-        resto: Post.resto,
-        mode: 'regist'
-      };
+      var captcha, challenge, el, img, o, op, qr, response, _i, _len, _ref;
+      qr = Post.qr;
+      o = {};
       _ref = $$('[name]', qr);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
@@ -1631,11 +1618,10 @@
         if (e) alert('You forgot to type in the verification.');
         return;
       }
-      o.recaptcha_challenge_field = captcha.challenge;
-      o.recaptcha_response_field = captcha.response;
       Post.stats();
       if (img) {
         img.setAttribute('data-submit', true);
+        $('input', img.parentNode).form = 'qr_form';
         if (g.XHR2) {
           o.upfile = atob(img.src.split(',')[1]);
         } else {
@@ -1643,15 +1629,16 @@
         }
       }
       Post.sage = /sage/i.test(o.email);
+      challenge = captcha.challenge, response = captcha.response;
       if (g.XHR2) {
+        o.recaptcha_challenge_field = challenge;
+        o.recaptcha_response_field = response;
         o.to = 'sys';
         postMessage(o, '*');
       } else {
-        for (name in o) {
-          value = o[name];
-          form[name].value = value;
-        }
-        form.submit();
+        form.recaptcha_challenge_field = challenge;
+        form.recaptcha_response_field = response;
+        $('form', qr).submit();
       }
       if (conf['Auto Hide QR']) $('#autohide', qr).checked = true;
       if (conf['Thread Watcher'] && conf['Auto Watch Reply']) {
