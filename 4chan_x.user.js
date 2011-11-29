@@ -103,6 +103,7 @@
         'Auto Watch Reply': [false, 'Automatically watch threads that you reply to']
       },
       Posting: {
+        'Character Count': [false, 'Prevent "Error: Field too long." errors'],
         'Cooldown': [true, 'Prevent `flood detected` errors'],
         'Quick Reply': [true, 'Reply without leaving the page'],
         'Persistent QR': [false, 'Quick reply won\'t disappear after posting. Only in replies.'],
@@ -1454,8 +1455,9 @@
       return $('#pstats', qr).textContent = "captchas: " + captchas.length + " / images: " + images.length;
     },
     dialog: function(link) {
-      var qr;
-      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input class=inputtext placeholder=Name    name=name>        <input class=inputtext placeholder=Email   name=email>        <input class=inputtext placeholder=Subject name=sub>      </div>      <textarea class=inputtext placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      var hidden, qr;
+      hidden = conf['Character Count'] ? '' : 'hidden';
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input class=inputtext placeholder=Name    name=name>        <input class=inputtext placeholder=Email   name=email>        <input class=inputtext placeholder=Subject name=sub>      </div>      <textarea class=inputtext placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount " + hidden + "></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
       Post.reset();
       if (g.REPLY) {
         Post.resto = g.THREAD_ID;
