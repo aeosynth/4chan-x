@@ -1296,7 +1296,7 @@ Post =
     Post.stats()
 
     if img
-      img.dataset.submit = true
+      img.setAttribute 'data-submit', true #XXX fx - can't use dataset in userscript, wtf?
       if g.XHR2
         o.upfile = atob img.src.split(',')[1]
       else

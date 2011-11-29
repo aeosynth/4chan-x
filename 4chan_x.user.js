@@ -1629,7 +1629,7 @@
       o.recaptcha_response_field = captcha.response;
       Post.stats();
       if (img) {
-        img.dataset.submit = true;
+        img.setAttribute('data-submit', true);
         if (g.XHR2) {
           o.upfile = atob(img.src.split(',')[1]);
         } else {
