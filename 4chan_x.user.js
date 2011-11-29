@@ -1729,9 +1729,12 @@
       qr = Post.qr;
       if (!g.XHR2) $('#iframe').src = 'about:blank';
       error = data.error, url = data.url;
+      img = $('img[data-submit]', qr);
       if (url) return window.location = url;
       if (error) {
         if (error === 'Error: Duplicate file entry detected.') {
+          $.rm(img.parentNode);
+          Post.stats();
           setTimeout(Post.submit, 1000);
         } else if (error === 'You seem to have mistyped the verification.') {
           setTimeout(Post.submit, 1000);
