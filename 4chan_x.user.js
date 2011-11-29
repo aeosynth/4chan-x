@@ -1442,7 +1442,8 @@
       ta.value = v.slice(0, ss) + text + v.slice(ss);
       i = ss + text.length;
       ta.setSelectionRange(i, i);
-      return ta.focus();
+      ta.focus();
+      return Post.charCount.call(ta);
     },
     stats: function() {
       var captchas, images, qr;
@@ -1452,8 +1453,8 @@
       return $('#pstats', qr).textContent = "captchas: " + captchas.length + " / images: " + images.length;
     },
     dialog: function(link) {
-      var c, m, qr;
-      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    name=name>        <input placeholder=Email   name=email>        <input placeholder=Subject name=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      var c, m, qr, ta;
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    name=name>        <input placeholder=Email   name=email>        <input placeholder=Subject name=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount>0 / 2000</span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
       c = d.cookie;
       $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
       $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
@@ -1465,13 +1466,18 @@
       Post.captchaImg();
       Post.file();
       if (conf['cooldown']) Post.cooldown();
+      ta = $('textarea', qr);
       $.on($('.close', qr), 'click', Post.rm);
       $.on($('#submit', qr), 'click', Post.submit);
       $.on($('#recaptcha_response_field', qr), 'keydown', Post.captchaKeydown);
       $.on($('img', qr), 'click', Post.captchaReload);
+      $.on($('textarea', qr), 'keyup', Post.charCount);
       Post.stats();
       $.add(d.body, qr);
       return qr;
+    },
+    charCount: function(e) {
+      return $('#charCount', Post.qr).textContent = this.value.length + ' / 2000';
     },
     rm: function() {
       $.rm(Post.qr);
@@ -3425,6 +3431,11 @@
       }\
       #post #reholder {\
         position: relative;\
+      }\
+      #post #charCount {\
+        position: absolute;\
+        right: 25px;\
+        top: 5px;\
       }\
       #post #fileSpan {\
         position: absolute;\

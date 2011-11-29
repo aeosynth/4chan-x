@@ -1104,6 +1104,8 @@ Post =
     ta.setSelectionRange i, i
     ta.focus()
 
+    Post.charCount.call ta
+
   stats: ->
     {qr} = Post
     images = $$ '#items li', qr
@@ -1127,6 +1129,7 @@ Post =
       <div><img id=captchaImg></div>
       <div id=reholder>
         <input id=recaptcha_response_field placeholder=Verification autocomplete=off>
+        <span id=charCount>0 / 2000</span>
         <span id=fileSpan>
           <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>
         </span>
@@ -1150,13 +1153,18 @@ Post =
     Post.captchaImg()
     Post.file()
     Post.cooldown() if conf['cooldown']
+    ta = $ 'textarea', qr
     $.on $('.close', qr), 'click', Post.rm
     $.on $('#submit', qr), 'click', Post.submit
     $.on $('#recaptcha_response_field', qr), 'keydown', Post.captchaKeydown
     $.on $('img', qr), 'click', Post.captchaReload
+    $.on $('textarea', qr), 'keyup', Post.charCount
     Post.stats()
     $.add d.body, qr
     qr
+
+  charCount: (e) ->
+    $('#charCount', Post.qr).textContent = @value.length + ' / 2000'
 
   rm: ->
     $.rm Post.qr
@@ -2861,6 +2869,11 @@ Main =
       }
       #post #reholder {
         position: relative;
+      }
+      #post #charCount {
+        position: absolute;
+        right: 25px;
+        top: 5px;
       }
       #post #fileSpan {
         position: absolute;
