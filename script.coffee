@@ -687,8 +687,8 @@ keybinds =
       when conf.previousPage
         $('input[value=Previous]')?.click()
       when conf.submit
-        if QR.qr
-          QR.submit.call $ 'form', QR.qr
+        if Post.qr
+          Post.submit()
         else
           $('.postarea form').submit()
       when conf.unreadCountTo0
@@ -732,13 +732,12 @@ keybinds =
       imgExpand.toggle thumb.parentNode
 
   qr: (thread, quote) ->
+    link = $ '.quotejs + a', $('.replyhl', thread) or thread
     if quote
-      QR.quote.call $ '.quotejs + a', $('.replyhl', thread) or thread
+      Post.quote.call link, preventDefault: ->
     else
-      if QR.qr
-        $('textarea', QR.qr).focus()
-      else
-        QR.dialog '', thread?.firstChild.id
+      Post.dialog link if not Post.qr
+      $('textarea', Post.qr).focus()
 
   open: (thread, tab) ->
     id = thread.firstChild.id

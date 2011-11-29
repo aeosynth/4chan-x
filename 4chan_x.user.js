@@ -952,8 +952,8 @@
           if ((_ref3 = $('input[value=Previous]')) != null) _ref3.click();
           break;
         case conf.submit:
-          if (QR.qr) {
-            QR.submit.call($('form', QR.qr));
+          if (Post.qr) {
+            Post.submit();
           } else {
             $('.postarea form').submit();
           }
@@ -1048,14 +1048,15 @@
       }
     },
     qr: function(thread, quote) {
+      var link;
+      link = $('.quotejs + a', $('.replyhl', thread) || thread);
       if (quote) {
-        return QR.quote.call($('.quotejs + a', $('.replyhl', thread) || thread));
+        return Post.quote.call(link, {
+          preventDefault: function() {}
+        });
       } else {
-        if (QR.qr) {
-          return $('textarea', QR.qr).focus();
-        } else {
-          return QR.dialog('', thread != null ? thread.firstChild.id : void 0);
-        }
+        if (!Post.qr) Post.dialog(link);
+        return $('textarea', Post.qr).focus();
       }
     },
     open: function(thread, tab) {
