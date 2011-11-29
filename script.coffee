@@ -1120,14 +1120,14 @@ Post =
     </div>
     <div class=autohide>
       <div id=foo>
-        <input placeholder=Name    name=name>
-        <input placeholder=Email   name=email>
-        <input placeholder=Subject name=sub>
+        <input class=inputtext placeholder=Name    name=name>
+        <input class=inputtext placeholder=Email   name=email>
+        <input class=inputtext placeholder=Subject name=sub>
       </div>
-      <textarea placeholder=Comment name=com></textarea>
+      <textarea class=inputtext placeholder=Comment name=com></textarea>
       <div><img id=captchaImg></div>
       <div id=reholder>
-        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>
+        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>
         <span id=charCount></span>
         <span id=fileSpan>
           <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>
@@ -2843,11 +2843,12 @@ Main =
         position: absolute;
       }
       #post #foo input {
-        width: 97px;
+        width: 95px;
       }
       #post textarea {
         border: 0;
         margin: 0;
+        padding: 0;
         width: 300px;
         height: 150px;
       }
