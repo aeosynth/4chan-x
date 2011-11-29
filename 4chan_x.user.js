@@ -1454,11 +1454,9 @@
       return $('#pstats', qr).textContent = "captchas: " + captchas.length + " / images: " + images.length;
     },
     dialog: function(link) {
-      var c, m, qr, ta;
-      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    name=name>        <input placeholder=Email   name=email>        <input placeholder=Subject name=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount>0 / 2000</span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
-      c = d.cookie;
-      $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
-      $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
+      var qr;
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <div id=foo>        <input placeholder=Name    name=name>        <input placeholder=Email   name=email>        <input placeholder=Subject name=sub>      </div>      <textarea placeholder=Comment name=com></textarea>      <div><img id=captchaImg></div>      <div id=reholder>        <input id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      Post.reset();
       if (g.REPLY) {
         Post.resto = g.THREAD_ID;
       } else {
@@ -1467,7 +1465,6 @@
       Post.captchaImg();
       Post.file();
       if (conf['cooldown']) Post.cooldown();
-      ta = $('textarea', qr);
       $.on($('.close', qr), 'click', Post.rm);
       $.on($('#submit', qr), 'click', Post.submit);
       $.on($('#recaptcha_response_field', qr), 'keydown', Post.captchaKeydown);
@@ -1732,7 +1729,7 @@
       return postMessage(data, '*');
     },
     message: function(data) {
-      var cooldown, error, img, qr, ta, url;
+      var cooldown, error, img, qr, url;
       qr = Post.qr;
       if (!g.XHR2) $('#iframe').src = 'about:blank';
       error = data.error, url = data.url;
@@ -1756,9 +1753,7 @@
         Post.stats();
       }
       if (conf['Persistent QR'] || $('#items img[src]', qr)) {
-        ta = $('textarea', qr);
-        ta.value = '';
-        Post.charCount.call(ta);
+        Post.reset();
       } else {
         Post.rm();
       }
@@ -1767,6 +1762,16 @@
         $.set("cooldown/" + g.BOARD, cooldown);
         return Post.cooldown();
       }
+    },
+    reset: function() {
+      var c, m, qr, ta;
+      qr = Post.qr;
+      ta = $('textarea', qr);
+      ta.value = '';
+      Post.charCount.call(ta);
+      c = d.cookie;
+      $('[name=name]', qr).value = (m = c.match(/4chan_name=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
+      return $('[name=email]', qr).value = (m = c.match(/4chan_email=([^;]+)/)) ? decodeURIComponent(m[1]) : '';
     },
     cooldown: function() {
       var b, cooldown, n, now, qr;

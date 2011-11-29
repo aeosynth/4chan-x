@@ -1128,7 +1128,7 @@ Post =
       <div><img id=captchaImg></div>
       <div id=reholder>
         <input id=recaptcha_response_field placeholder=Verification autocomplete=off>
-        <span id=charCount>0 / 2000</span>
+        <span id=charCount></span>
         <span id=fileSpan>
           <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>
         </span>
@@ -1142,9 +1142,7 @@ Post =
     </div>
     "
 
-    c = d.cookie
-    $('[name=name]',  qr).value = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
-    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
+    Post.reset()
     if g.REPLY
       Post.resto = g.THREAD_ID
     else
@@ -1152,7 +1150,6 @@ Post =
     Post.captchaImg()
     Post.file()
     Post.cooldown() if conf['cooldown']
-    ta = $ 'textarea', qr
     $.on $('.close', qr), 'click', Post.rm
     $.on $('#submit', qr), 'click', Post.submit
     $.on $('#recaptcha_response_field', qr), 'keydown', Post.captchaKeydown
@@ -1406,15 +1403,22 @@ Post =
       $.rm img.parentNode
       Post.stats()
     if conf['Persistent QR'] or $('#items img[src]', qr)
-      ta = $ 'textarea', qr
-      ta.value = ''
-      Post.charCount.call ta
+      Post.reset()
     else
       Post.rm()
     if conf['Cooldown']
       cooldown = Date.now() + (if Post.sage then 60 else 30)*SECOND
       $.set "cooldown/#{g.BOARD}", cooldown
       Post.cooldown()
+
+  reset: ->
+    {qr} = Post
+    ta = $ 'textarea', qr
+    ta.value = ''
+    Post.charCount.call ta
+    c = d.cookie
+    $('[name=name]',  qr).value = if m = c.match(/4chan_name=([^;]+)/)  then decodeURIComponent m[1] else ''
+    $('[name=email]', qr).value = if m = c.match(/4chan_email=([^;]+)/) then decodeURIComponent m[1] else ''
 
   cooldown: ->
     {qr} = Post
