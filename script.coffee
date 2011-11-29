@@ -1309,7 +1309,7 @@ Post =
       else
         $.add form, $('input', img.parentNode)
 
-    Post.sage = o.email is 'sage'
+    Post.sage = /sage/i.test o.email
 
     if g.XHR2
       o.to = 'sys'
