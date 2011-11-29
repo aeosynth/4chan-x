@@ -1732,7 +1732,7 @@
       return postMessage(data, '*');
     },
     message: function(data) {
-      var cooldown, error, img, qr, url;
+      var cooldown, error, img, qr, ta, url;
       qr = Post.qr;
       if (!g.XHR2) $('#iframe').src = 'about:blank';
       error = data.error, url = data.url;
@@ -1756,7 +1756,9 @@
         Post.stats();
       }
       if (conf['Persistent QR'] || $('#items img[src]', qr)) {
-        $('textarea', qr).value = '';
+        ta = $('textarea', qr);
+        ta.value = '';
+        Post.charCount.call(ta);
       } else {
         Post.rm();
       }

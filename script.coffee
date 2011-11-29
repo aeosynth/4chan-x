@@ -1406,7 +1406,9 @@ Post =
       $.rm img.parentNode
       Post.stats()
     if conf['Persistent QR'] or $('#items img[src]', qr)
-      $('textarea', qr).value = ''
+      ta = $ 'textarea', qr
+      ta.value = ''
+      Post.charCount.call ta
     else
       Post.rm()
     if conf['Cooldown']
