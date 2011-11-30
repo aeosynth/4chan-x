@@ -1603,7 +1603,11 @@
       _ref = $$('[name]', qr);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
-        o[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+        if (el.type === 'checkbox' && el.checked) {
+          o[el.name] = true;
+        } else {
+          o[el.name] = el.value;
+        }
       }
       delete o.upfile;
       img = $('#items img[src]', qr);
