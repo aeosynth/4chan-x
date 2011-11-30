@@ -2840,6 +2840,9 @@ Main =
       #post #foo input {
         width: 95px;
       }
+      #post form {
+        margin: 0;
+      }
       #post textarea {
         border: 0;
         margin: 0;
