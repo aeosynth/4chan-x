@@ -1269,7 +1269,11 @@ Post =
 
     o = {}
     for el in $$ '[name]', qr
-      o[el.name] = el.value
+      o[el.name] =
+        if el.type is 'checkbox' #XXX `value` is always `on`
+          el.checked
+        else
+          el.value
     delete o.upfile
     img = $ '#items img[src]', qr
 
