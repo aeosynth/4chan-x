@@ -596,6 +596,8 @@ replyHiding =
 
   hideHide: (reply) ->
     table = reply.parentNode.parentNode.parentNode
+    return if table.hidden #already hidden by filter
+
     table.hidden = true
 
     if conf['Show Stubs']
@@ -1506,6 +1508,7 @@ threadHiding =
 
   hideHide: (thread) ->
     if conf['Show Stubs']
+      return if /stub/.test thread.className #already hidden by filter
       if span = $ '.omittedposts', thread
         num = Number span.textContent.match(/\d+/)[0]
       else
