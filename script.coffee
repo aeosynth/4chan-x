@@ -1308,9 +1308,10 @@ Post =
       o.to = 'sys'
       postMessage o, '*'
     else
-      form.recaptcha_challenge_field = challenge
-      form.recaptcha_response_field  = response
-      $('form', qr).submit()
+      form = $ 'form', qr
+      form.recaptcha_challenge_field.value = challenge
+      form.recaptcha_response_field.value  = response
+      form.submit()
 
     if conf['Auto Hide QR']
       $('#autohide', qr).checked = true

@@ -1597,7 +1597,7 @@
       return Post.stats();
     },
     submit: function(e) {
-      var captcha, challenge, el, img, o, op, qr, response, _i, _len, _ref;
+      var captcha, challenge, el, form, img, o, op, qr, response, _i, _len, _ref;
       qr = Post.qr;
       o = {};
       _ref = $$('[name]', qr);
@@ -1641,9 +1641,10 @@
         o.to = 'sys';
         postMessage(o, '*');
       } else {
-        form.recaptcha_challenge_field = challenge;
-        form.recaptcha_response_field = response;
-        $('form', qr).submit();
+        form = $('form', qr);
+        form.recaptcha_challenge_field.value = challenge;
+        form.recaptcha_response_field.value = response;
+        form.submit();
       }
       if (conf['Auto Hide QR']) $('#autohide', qr).checked = true;
       if (conf['Thread Watcher'] && conf['Auto Watch Reply']) {
