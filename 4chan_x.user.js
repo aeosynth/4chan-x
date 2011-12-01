@@ -1608,10 +1608,10 @@
       _ref = $$('[name]', qr);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
-        if (el.type === 'checkbox' && el.checked) {
-          o[el.name] = true;
-        } else {
+        if (el.type !== 'checkbox') {
           o[el.name] = el.value;
+        } else if (el.checked) {
+          o[el.name] = true;
         }
       }
       delete o.upfile;
