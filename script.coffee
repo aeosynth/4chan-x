@@ -1108,7 +1108,7 @@ Post =
       <span id=pstats></span>
     </div>
     <div class=autohide>
-      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/#{g.BOARD}/post target=iframe>
+      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/#{g.BOARD}/post target=iframe id=qr_form>
         <input type=hidden name=mode value=regist>
         <input type=hidden name=resto value=#{resto}>
         <input type=hidden name=recaptcha_challenge_field>
@@ -1213,9 +1213,6 @@ Post =
   pushFile: ->
     self = @
     items = $ '#items', Post.qr
-    html = '<a class=close>X</a><img>'
-    if g.XHR2
-      html += '<input type=file>'
     for file in @files
       do (file) ->
         if file.size > Post.MAX_FILE_SIZE
@@ -1223,11 +1220,15 @@ Post =
           return
 
         item = $.el 'li',
-          innerHTML: html
+          innerHTML: '<a class=close>X</a><img>'
         $.on $('a', item), 'click', Post.rmFile
-        $.on $('input', item), 'change', Post.fileChange
         $.add items, item
-        if not g.XHR2
+        if g.XHR2
+          input = $.el 'input',
+            type: 'file'
+          $.on input, 'change', Post.fileChange
+          $.add item, input
+        else
           $.add item, self
 
         fr = new FileReader()
@@ -1293,11 +1294,10 @@ Post =
 
     if img
       img.setAttribute 'data-submit', true #XXX fx - can't use dataset in userscript, wtf?
-      $('input', img.parentNode).form = 'qr_form'
       if g.XHR2
         o.upfile = atob img.src.split(',')[1]
       else
-        $.add form, $('input', img.parentNode)
+        $('input', img.parentNode).setAttribute 'form', 'qr_form'
 
     Post.sage = /sage/i.test o.email
 

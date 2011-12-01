@@ -1452,7 +1452,7 @@
         resto = $.x('ancestor::div[@class="thread"]/div', link).id;
       }
       hidden = conf['Character Count'] ? '' : 'hidden';
-      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/" + g.BOARD + "/post target=iframe>        <input type=hidden name=mode value=regist>        <input type=hidden name=resto value=" + resto + ">        <input type=hidden name=recaptcha_challenge_field>        <input type=hidden name=recaptcha_response_field>        <div id=foo>          <input class=inputtext placeholder=Name    name=name>          <input class=inputtext placeholder=Email   name=email>          <input class=inputtext placeholder=Subject name=sub>        </div>        <textarea class=inputtext placeholder=Comment name=com></textarea>        <div><img id=captchaImg></div>      </form>      <div id=reholder>        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount " + hidden + "></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
+      qr = Post.qr = ui.dialog('post', 'top: 0; right: 0', "    <a class=close>X</a>    <input type=checkbox id=autohide title=autohide>    <div class=move>      <span id=pstats></span>    </div>    <div class=autohide>      <form enctype=multipart/form-data method=post action=http://sys.4chan.org/" + g.BOARD + "/post target=iframe id=qr_form>        <input type=hidden name=mode value=regist>        <input type=hidden name=resto value=" + resto + ">        <input type=hidden name=recaptcha_challenge_field>        <input type=hidden name=recaptcha_response_field>        <div id=foo>          <input class=inputtext placeholder=Name    name=name>          <input class=inputtext placeholder=Email   name=email>          <input class=inputtext placeholder=Subject name=sub>        </div>        <textarea class=inputtext placeholder=Comment name=com></textarea>        <div><img id=captchaImg></div>      </form>      <div id=reholder>        <input class=inputtext id=recaptcha_response_field placeholder=Verification autocomplete=off>        <span id=charCount " + hidden + "></span>        <span id=fileSpan>          <img src=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41Ljg3O4BdAAAAXUlEQVQ4T2NgoAH4DzQTHyZoJckGENJASB6nc9GdCjdo6tSptkCsCPUqVgNAmtFtxiYGUkO0QrBibOqJtWkIGYDTqTgSGOnRiGYQ3mRLKBFhjUZiNCGrIZg3aKsAAGu4rTMFLFBMAAAAAElFTkSuQmCC>        </span>      </div>      <ul id=items></ul>      <div>        <button id=submit>Submit</button>        " + Post.spoiler + "        <label><input id=autosubmit type=checkbox>autosubmit</label>      </div>    </div>    ");
       Post.reset();
       Post.captchaImg();
       Post.file();
@@ -1532,25 +1532,30 @@
       return Post.stats();
     },
     pushFile: function() {
-      var file, html, items, self, _fn, _i, _len, _ref;
+      var file, items, self, _fn, _i, _len, _ref;
       self = this;
       items = $('#items', Post.qr);
-      html = '<a class=close>X</a><img>';
-      if (g.XHR2) html += '<input type=file>';
       _ref = this.files;
       _fn = function(file) {
-        var fr, img, item;
+        var fr, img, input, item;
         if (file.size > Post.MAX_FILE_SIZE) {
           alert('Error: File too large.');
           return;
         }
         item = $.el('li', {
-          innerHTML: html
+          innerHTML: '<a class=close>X</a><img>'
         });
         $.on($('a', item), 'click', Post.rmFile);
-        $.on($('input', item), 'change', Post.fileChange);
         $.add(items, item);
-        if (!g.XHR2) $.add(item, self);
+        if (g.XHR2) {
+          input = $.el('input', {
+            type: 'file'
+          });
+          $.on(input, 'change', Post.fileChange);
+          $.add(item, input);
+        } else {
+          $.add(item, self);
+        }
         fr = new FileReader();
         img = $('img', item);
         fr.onload = function(e) {
@@ -1626,11 +1631,10 @@
       Post.stats();
       if (img) {
         img.setAttribute('data-submit', true);
-        $('input', img.parentNode).form = 'qr_form';
         if (g.XHR2) {
           o.upfile = atob(img.src.split(',')[1]);
         } else {
-          $.add(form, $('input', img.parentNode));
+          $('input', img.parentNode).setAttribute('form', 'qr_form');
         }
       }
       Post.sage = /sage/i.test(o.email);
