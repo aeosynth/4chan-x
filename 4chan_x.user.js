@@ -1476,7 +1476,7 @@
     captchaGet: function() {
       var captcha, captchas, cutoff, el, v;
       captchas = $.get('captchas', []);
-      cutoff = Date.now() - 5 * HOUR + 5 * MINUTE;
+      cutoff = Date.now() - 25 * MINUTE;
       while (captcha = captchas.shift()) {
         if (captcha.time > cutoff) break;
       }
