@@ -46,13 +46,14 @@ config =
       'Quote Preview':      [true,  'Show quote content on hover']
       'Indicate OP quote':  [true,  'Add \'(OP)\' to OP quotes']
   filter:
-    name: ''
-    trip: ''
-    mail: ''
-    sub:  ''
-    com:  ''
-    file: ''
-    md5:  ''
+    name:     ''
+    tripcode: ''
+    email:    ''
+    subject:  ''
+    comment:  ''
+    filename: ''
+    filesize: ''
+    md5:      ''
   flavors: [
     'http://iqdb.org/?url='
     'http://google.com/searchbyimage?image_url='
@@ -415,20 +416,23 @@ filter =
   name: (root) ->
     name = if root.className is 'op' then $ '.postername', root else $ '.commentpostername', root
     filter.test 'name', name.textContent
-  trip: (root) ->
+  tripcode: (root) ->
     if trip = $ '.postertrip', root
-      filter.test 'trip', trip.textContent
-  mail: (root) ->
+      filter.test 'tripcode', trip.textContent
+  email: (root) ->
     if mail = $ '.linkmail', root
-      filter.test 'mail', mail.href
-  sub: (root) ->
+      filter.test 'email', mail.href
+  subject: (root) ->
     sub = if root.className is 'op' then $ '.filetitle', root else $ '.replytitle', root
-    filter.test 'sub', sub.textContent
-  com: (root) ->
-    filter.test 'com', ($.el 'a', innerHTML: $('blockquote', root).innerHTML.replace /<br>/g, '\n').textContent
-  file: (root) ->
+    filter.test 'subject', sub.textContent
+  comment: (root) ->
+    filter.test 'comment', ($.el 'a', innerHTML: $('blockquote', root).innerHTML.replace /<br>/g, '\n').textContent
+  filename: (root) ->
     if file = $ '.filesize span', root
-      filter.test 'file', file.title
+      filter.test 'filename', file.title
+  filesize: (root) ->
+    if img = $ 'img[md5]', root
+      filter.test 'filesize', img.alt
   md5: (root) ->
     if img = $ 'img[md5]', root
       filter.test 'md5', img.getAttribute('md5')
@@ -900,11 +904,12 @@ options =
     Use <a href=https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions>regular expressions</a>, one per line.<br>
     For example, <code>/weeaboo/i</code> will filter posts containing `weeaboo` case-insensitive.
     <p>Name:<br><textarea name=name></textarea></p>
-    <p>Tripcode:<br><textarea name=trip></textarea></p>
-    <p>E-mail:<br><textarea name=mail></textarea></p>
-    <p>Subject:<br><textarea name=sub></textarea></p>
-    <p>Comment:<br><textarea name=com></textarea></p>
-    <p>Filename:<br><textarea name=file></textarea></p>
+    <p>Tripcode:<br><textarea name=tripcode></textarea></p>
+    <p>E-mail:<br><textarea name=email></textarea></p>
+    <p>Subject:<br><textarea name=subject></textarea></p>
+    <p>Comment:<br><textarea name=comment></textarea></p>
+    <p>Filename:<br><textarea name=filename></textarea></p>
+    <p>Filesize:<br><textarea name=filesize></textarea></p>
     <p>Image MD5:<br><textarea name=md5></textarea></p>
   </div>
   <input type=radio name=tab hidden id=rice_tab>
@@ -2195,10 +2200,10 @@ imgPreloading =
 
   click: ->
     if imgPreloading.on = @checked
-      for thumb in $$ 'img[md5]:last-child'
+      for thumb in $$ '.op > a > img[md5]:last-child, table:not([hidden]) img[md5]:last-child'
         imgPreloading.preload thumb
   node: (root) ->
-    return unless imgPreloading.on and thumb = $ 'img[md5]:last-child', root
+    return if !imgPreloading.on or root.hidden or !thumb = $ 'img[md5]:last-child', root
     imgPreloading.preload thumb
   preload: (thumb) ->
     $.el 'img', src: thumb.parentNode.href
@@ -2220,7 +2225,8 @@ imgExpand =
     return unless thumb = $ 'img[md5]', root
     a = thumb.parentNode
     $.on a, 'click', imgExpand.cb.toggle
-    if imgExpand.on and root.className isnt 'inline' then imgExpand.expand a.firstChild
+    if imgExpand.on and !root.hidden and root.className isnt 'inline'
+      imgExpand.expand a.firstChild
   cb:
     toggle: (e) ->
       return if e.shiftKey or e.altKey or e.ctrlKey or e.button isnt 0
@@ -2229,7 +2235,7 @@ imgExpand =
     all: ->
       imgExpand.on = @checked
       if imgExpand.on #expand
-        for thumb in $$ 'img[md5]:not([hidden])'
+        for thumb in $$ '.op > a > img[md5]:last-child, table:not([hidden]) img[md5]:last-child'
           imgExpand.expand thumb
       else #contract
         for thumb in $$ 'img[md5][hidden]'
