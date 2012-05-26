@@ -1,4 +1,10 @@
 master
+
+3.6.1
+- aeosynth + queue
+  fix whitespace preservation w/ visible characters
+
+3.6.0
 - aeosynth
   add /k/ archive
 - queue
