@@ -1548,11 +1548,11 @@ QR =
 
     if Conf['Preserve Whitespace']
       post.com = post.com
-        .replace( /\t/g, '        ' )
+        .replace( /\t/g, '\x01 \x01 \x01 \x01 ' )
         .replace /^ +| {2,}/gm, (it) ->
-          it.replace `/ /g`, String.fromCharCode 12288
+          '\x01' + it.replace `/ /g`, ' \x01'
         .replace /\n{3,}/g, (it) ->
-          it.replace /\n/g, '\n\x0b'
+          it.replace /\n/g, '\n\x01'
 
     form = new FormData()
     for name, val of post
