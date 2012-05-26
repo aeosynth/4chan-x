@@ -1545,13 +1545,21 @@ QR =
       recaptcha_challenge_field: challenge
       recaptcha_response_field:  response + ' '
     
+		# if Conf['Preserve Whitespace']
+		# post.com = post.com
+		#   .replace( /\t/g, ' ' )
+		#   .replace /^ +| {2,}/gm, (it) ->
+		#     it.replace `/ /g`, '? '
+		#   .replace /\n{3,}/g, (it) ->
+		#     it.replace /\n/g, '\n?'
+
     if Conf['Preserve Whitespace']
       post.com = post.com
-        .replace( /\t/g, '        ' )
+        .replace( /\t/g, '\x01 \x01 \x01 \x01 ' )
         .replace /^ +| {2,}/gm, (it) ->
-          it.replace `/  /g`, '▷ '
+          '\x01' + it.replace `/ /g`, ' \x01'
         .replace /\n{3,}/g, (it) ->
-          it.replace /\n/g, '\n▷'
+          it.replace /\n/g, '\n\x01'
 
     form = new FormData()
     for name, val of post
@@ -3288,7 +3296,7 @@ Main =
       Main.node [Main.preParse target]
 
   namespace: '4chan_x.'
-  version: '3.6.1'
+  version: '3.5.0'
   callbacks: []
   css: '
 /* dialog styling */

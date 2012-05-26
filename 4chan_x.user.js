@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           4chan x
-// @version        3.6.1
+// @version        3.5.0
 // @namespace      aeosynth
 // @description    Adds various features.
 // @copyright      2009-2011 James Campos <james.r.campos@gmail.com>
@@ -19,7 +19,7 @@
  * Copyright (c) 2009-2011 James Campos <james.r.campos@gmail.com>
  * Copyright (c) 2012 Nicolas Stepien <stepien.nicolas@gmail.com>, James Campos <james.r.campos@gmail.com>
  * http://aeosynth.github.com/4chan-x/
- * 4chan X 3.6.1
+ * 4chan X 3.5.0
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -2035,10 +2035,10 @@
         recaptcha_response_field: response + ' '
       };
       if (Conf['Preserve Whitespace']) {
-        post.com = post.com.replace(/\t/g, '        ').replace(/^ +| {2,}/gm, function(it) {
-          return it.replace(/  /g, '▷ ');
+        post.com = post.com.replace(/\t/g, '\x01 \x01 \x01 \x01 ').replace(/^ +| {2,}/gm, function(it) {
+          return '\x01' + it.replace(/ /g, ' \x01');
         }).replace(/\n{3,}/g, function(it) {
-          return it.replace(/\n/g, '\n▷');
+          return it.replace(/\n/g, '\n\x01');
         });
       }
       form = new FormData();
@@ -4298,7 +4298,7 @@
       }
     },
     namespace: '4chan_x.',
-    version: '3.6.1',
+    version: '3.5.0',
     callbacks: [],
     css: '\
 /* dialog styling */\
