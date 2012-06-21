@@ -729,14 +729,18 @@ ThreadHiding =
     if span = $ '.summary', thread
       num   = Number span.textContent.match /\d+/
     num    += $$('.opContainer ~ .replyContainer', thread).length
-    text    = if num is 1 then '1 reply' else "#{num} replies"
-    opInfo  = $('.op > .postInfo > .nameBlock', thread).textContent
-
+    replyText = if num is 1 then '1 reply' else "#{num} replies"
+    subject   = $('.op > .postInfo > .subject', thread).textContent
+    opInfo    = $('.op > .postInfo > .nameBlock', thread).textContent
+    postMsg   = $('.op > .postMessage', thread).textContent
+    showTitle = if subject.length is 0 then postMsg.substring(0,50) else subject
+    showText  = "#{showTitle} - #{opInfo} (#{replyText})"
+	  
     a = $.el 'a',
       className: 'hide_thread_button hidden_thread'
       innerHTML: '<span>[ + ]</span>'
       href: 'javascript:;'
-    $.add a, $.tn " #{opInfo} (#{text})"
+    $.add a, $.tn " #{showText}"
     $.on a, 'click', ThreadHiding.cb
     $.prepend thread, a
 
