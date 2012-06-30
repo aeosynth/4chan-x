@@ -971,7 +971,7 @@
       return $.set("hiddenThreads/" + g.BOARD + "/", hiddenThreads);
     },
     hide: function(thread, show_stub) {
-      var a, num, opInfo, span, text;
+      var a, num, opInfo, postMsg, replyText, showText, showTitle, span, subject;
       if (show_stub == null) {
         show_stub = Conf['Show Stubs'];
       }
@@ -988,14 +988,18 @@
         num = Number(span.textContent.match(/\d+/));
       }
       num += $$('.opContainer ~ .replyContainer', thread).length;
-      text = num === 1 ? '1 reply' : "" + num + " replies";
+      replyText = num === 1 ? '1 reply' : "" + num + " replies";
+      subject = $('.op > .postInfo > .subject', thread).textContent;
       opInfo = $('.op > .postInfo > .nameBlock', thread).textContent;
+      postMsg = $('.op > .postMessage', thread).textContent;
+      showTitle = subject.length === 0 ? postMsg.substring(0, 50) : subject;
+      showText = "" + showTitle + " - " + opInfo + " (" + replyText + ")";
       a = $.el('a', {
         className: 'hide_thread_button hidden_thread',
         innerHTML: '<span>[ + ]</span>',
         href: 'javascript:;'
       });
-      $.add(a, $.tn(" " + opInfo + " (" + text + ")"));
+      $.add(a, $.tn(" " + showText));
       $.on(a, 'click', ThreadHiding.cb);
       return $.prepend(thread, a);
     },
